@@ -16,7 +16,7 @@ function App() {
   return (
     <div>
       <h1>Mandorle coast Tool</h1>
-      <UploadExcel setMaterials={setMaterials} />{" "}
+      <UploadExcel setMaterials={setMaterials} />
       {/*props usestate (UploadExcel file)  */}
     </div>
   );

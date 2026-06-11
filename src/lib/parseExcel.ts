@@ -26,29 +26,32 @@ export function parseExcel(file: File): Promise<Material[]> {
     const reader = new FileReader(); // crea lettore file
     console.log("parser excell hit 1");
     reader.onload = (e) => {
+      // funzione asyncrona che legge i file excelle e fa' i parsing
       const data = e.target?.result; // contenuto del file letto
 
-      console.log("parseExcell 1", data);
+      console.log("parseExcell 1", data); // arrayBuffer
 
-      const workbook = XLSX.read(data, { type: "array" }); // parsing Excel
+      const workbook = XLSX.read(data, { type: "array" }); // parsing Excel -> sheets name, author name (alessandro calabro), nodified date... e altri metadati del file caricato
 
       console.log("parseExcell workbook", workbook);
 
-      const sheet = workbook.Sheets[workbook.SheetNames[0]]; // primo foglio (il primo sheet)
+      const sheet = workbook.Sheets[workbook.SheetNames[0]]; //il primo sheet del  primo foglio  (il log mostra solo strani metadati)
       console.log("parseExcell sheet", sheet);
 
-      const json = XLSX.utils.sheet_to_json(sheet); // converti in JSON
+      const json = XLSX.utils.sheet_to_json(sheet); // converti in JSON. Un array tutti i dati caricati come nel file,
       console.log("parseExcell json", json);
 
-      // Mappa le colonne che ci servono
+      // Mappa le colonne che ci servono e i dati annessi
+      // Un array dei dati caricati come nel file simile a quello json sopra ma solo con i dati delle colonne descritte in row
+      // (ancora ci sono dati duplicati, sotto provvediamo a eliminare doppioni)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const materials: Material[] = (json as any[]).map((row) => ({
-        data: row["Data"],
-        cod: row["Cod"],
+        data: row["Data"], // importante che le colonne row corrispondano col file caricato
+        cod: row["Cod."],
         categoria: row["Categoria"],
         descrizione: row["Prodotto"],
         prezzoAcquisto: row["Prezzo"],
-        fornitore: row["Cliente"],
+        fornitore: row["Cliente / Fornitore"],
       }));
 
       console.log("parseExcell materials", materials);
@@ -56,14 +59,10 @@ export function parseExcel(file: File): Promise<Material[]> {
       const latestMaterials = new Map<string, Material>();
 
       for (const material of materials) {
-        const existing = latestMaterials.get(material.cod);
-        console.log("parseExcell loop materials", material);
+        const existing = latestMaterials.get(material.cod); // get
 
         if (!existing) {
-          console.log("material cod exist =", material.cod);
-          console.log("latestMaterials before existing", latestMaterials);
-          latestMaterials.set(material.cod, material); // qui i cod. uguali vengono sovrascritti dall'ultimo
-          console.log("latestMaterials after existing", latestMaterials);
+          latestMaterials.set(material.cod, material); // e.s {002,"zucchero",10, agrosan} // qui i cod. uguali vengono sovrascritti dall'ultimo
           continue;
         }
 
@@ -76,15 +75,16 @@ export function parseExcel(file: File): Promise<Material[]> {
 
         const existingDate = Number(existing.data);
 
+        // se ci sono 2 date uguali per stesso prodotto usiamo solo il prod, price, client ecc.. piu' recente
         if (currentDate > existingDate) {
           latestMaterials.set(material.cod, material);
         }
       }
 
-      const uniqueMaterials = Array.from(latestMaterials.values());
+      const uniqueMaterials = Array.from(latestMaterials.values()); // trasforma il Map(dict) in un array
       console.log("uniqueMaterials testing", uniqueMaterials);
 
-      resolve(uniqueMaterials); // ritorna dati tipizzati
+      resolve(uniqueMaterials); // ritorna dati tipizzati in formato array
     }; // finisce reader.onload
 
     reader.readAsArrayBuffer(file); // avvia lettura del file

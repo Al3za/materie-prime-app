@@ -27,20 +27,18 @@ export default function UploadExcel({ setMaterials }: UploadExcelProps) {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     // Recupera il primo file selezionato.
-    console.log("File selezionato 1");
+
     const file = event.target.files?.[0]; // nome del file, non dello sheet del file
 
-    console.log("File selezionato 2");
-
     if (!file) return;
-    console.log("File selezionato 3 (file esiste) = ", file);
 
     const materials = await parseExcel(file); // chiama la fun parseExcell
-
-    console.log(console.log("materials uploads here =", materials));
+    // una volta finito il parsing del file excell, passiamo i dati formato array allo useEffect setMaterials,
+    // che e' il props del file App.tsx, cosi vedremo i dati nel main page
 
     setMaterials(materials); // mostriamo in App.tsx i dati del file caricato ricavati su parseExcell.ts
   };
 
-  return <input type="file" accept=".xlsx,.xls" onChange={handleFileUpload} />;
+  return <input type="file" accept=".xlsx,.xls" onChange={handleFileUpload} />; // handleFileUpload = la fun all inizio, che accoglie il file excell grezzo,
+  // invoca parserExcell per fare parsing e data cleaning, e fa' il rendering di questi dati sulla main page App,tsx
 }
