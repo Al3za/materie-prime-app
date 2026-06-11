@@ -1,0 +1,47 @@
+// 👉 Funzione esportata che prende un file Excel (File)
+// 👉 e restituisce una Promise con un array di Material
+
+ export function parseExcel(file: File): Promise<Material[]> {
+   //     Crei una Promise perché la lettura del file è asincrona
+   // 👉 resolve servirà per restituire i dati quando pronti
+   return new Promise((resolve) => {
+     // 👉 Crei un FileReader
+     // 👉 Serve per leggere file dal computer (Excel, txt, immagini ecc.)
+     const reader = new FileReader();
+
+     // 👉 Funzione che parte quando il file è stato letto completamente
+     reader.onload = (e) => {
+       // 👉 Prendi il contenuto del file letto
+       // 👉 result contiene i dati “grezzi” del file Excel
+       const data = e.target?.result;
+
+       // 👉 XLSX (SheetJS) trasforma i dati binari in un workbook Excel
+       // 👉 cioè rappresentazione interna del file Excel
+       const workbook = XLSX.read(data, { type: "array" });
+       // 👉 Prendi il primo foglio Excel
+       // 👉 (es: Sheet1)
+       const sheet = workbook.Sheets[workbook.SheetNames[0]];
+       // Converte il foglio Excel in un array di oggetti JS
+
+       // Esempio:
+       //   Excel:
+       // name | price
+       // A    | 10
+       // B    | 20
+
+       // Diventa:
+
+       // [
+       //   { name: "A", price: 10 },
+       //   { name: "B", price: 20 }
+       // ]
+       const json = XLSX.utils.sheet_to_json(sheet);
+
+       // 👉 Restituisci i dati alla Promise
+       // 👉 cast a Material[] (cioè dici a TypeScript: “fidati, è questo tipo”)
+       resolve(json as Material[]);
+     };
+
+     reader.readAsArrayBuffer(file);
+   });
+ }
