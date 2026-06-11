@@ -13,7 +13,7 @@ function App() {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  console.log("materials app here =", materials);
+  // console.log("materials app here =", materials);
   return (
     <div>
       <h1>Mandorle coast Tool</h1>
