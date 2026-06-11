@@ -6,6 +6,7 @@ import "./App.css";
 import type { Material } from "./types/material";
 import type { CartItem } from "./types/cartItem";
 import UploadExcel from "./components/UploadExcel";
+import MaterialsTable from "./components/MaterialsTable";
 
 function App() {
   // const [count, setCount] = useState(0);
@@ -18,6 +19,7 @@ function App() {
       <h1>Mandorle coast Tool</h1>
       <UploadExcel setMaterials={setMaterials} />
       {/*props usestate (UploadExcel file)  */}
+      <MaterialsTable materials={materials} />
     </div>
   );
 }

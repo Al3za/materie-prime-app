@@ -7,9 +7,8 @@
 import * as XLSX from "xlsx";
 import type { Material } from "../types/material";
 
-// function excelDateToJSDate(serial: number): Date {
+// function excelDateToJSDate(serial: number): Date | string {
 //   const excelEpoch = new Date(1899, 11, 30);
-
 //   return new Date(excelEpoch.getTime() + serial * 24 * 60 * 60 * 1000);
 // }
 
@@ -59,6 +58,7 @@ export function parseExcel(file: File): Promise<Material[]> {
       const latestMaterials = new Map<string, Material>();
 
       for (const material of materials) {
+        // const stringData = excelDateToJSDate(material)
         const existing = latestMaterials.get(material.cod); // get
 
         if (!existing) {
