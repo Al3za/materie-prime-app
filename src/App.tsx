@@ -16,10 +16,13 @@ function App() {
   // console.log("materials app here =", materials);
   return (
     <div>
-      <h1>Mandorle coast Tool</h1>
+      <h1>Componi ricetta</h1>
       <UploadExcel setMaterials={setMaterials} />
       {/*props usestate (UploadExcel file)  */}
-      <MaterialsTable materials={materials} />
+      {/* <MaterialsTable materials={materials} /> */}
+      <div style={{ marginTop: "20px" }}>
+        <MaterialsTable materials={materials} />
+      </div>
     </div>
   );
 }
