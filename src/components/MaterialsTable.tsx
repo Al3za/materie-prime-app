@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import {
   flexRender,
   getCoreRowModel,
@@ -18,6 +18,25 @@ interface MaterialsTableProps {
 }
 
 export default function MaterialsTable({ materials }: MaterialsTableProps) {
+  const [selected, setSelected] = useState<Material[]>([]);
+
+  // quando clicchiamo su qualunque oggetto del record (cod:002, oppore  Zucchero ecc.. l'intero
+  //  oggetto (record) viene salvato dentro la variabile
+  // Quindi tutti i record che clicchiamo vengono salvati in un ogetto e passati nel file
+  //  "recipeBuilder" tramite il props definito a fine fil => navigate(/recipe), state: { selected }.
+  //  (selected contiene la lista di materie cliccate)
+  const handleSelect = (material: Material) => {
+    // in material(nel props sopra) passiamo tutto il record cliccato {cod:004, decrizione:acido E300 ecc..}
+    const exists = selected.some((m) => m.cod === material.cod); //true or false (all'inizio e false xke l'array selected e' vuoto e non trova m.cod)
+
+    if (exists) {
+      // se abbiamo selezionato erroneamente un record di materie, lo clicchiamo nuovamente e il .filter lo toglie dagli oggetti che abbiamo accumulato in selected
+      setSelected(selected.filter((m) => m.cod !== material.cod));
+    } else {
+      setSelected([...selected, material]); // aggiungi il record cliccato in selected. Con la sintassi ...selected, si accumulano piu' record cliccati, fungendo da accumulatore
+    }
+  };
+
   const columns: ColumnDef<Material>[] = [
     {
       accessorKey: "cod",
@@ -70,6 +89,8 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
     getSortedRowModel: getSortedRowModel(),
   });
 
+  const navigate = useNavigate();
+
   return (
     <div style={{ overflowX: "auto" }}>
       <div style={{ marginBottom: "20px" }}>
@@ -83,7 +104,7 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
           type="text"
           placeholder="🔍 Cerca prodotto..."
           value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
+          onChange={(e) => setGlobalFilter(e.target.value)} // usiamo setGlobalFilter, il filter nativo di TanStack
           style={{
             width: "300px",
             padding: "10px 14px",
@@ -97,12 +118,6 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
           }}
         />
       </div>
-      {/* <input
-        type="text"
-        placeholder="Cerca prodotto..."
-        value={globalFilter}
-        onChange={(e) => setGlobalFilter(e.target.value)}
-      /> */}
       <table
         style={{
           borderCollapse: "collapse",
@@ -130,23 +145,50 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  style={{
-                    border: "1px solid black",
-                    padding: "8px",
-                  }}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {table.getRowModel().rows.map((row) => {
+            // in material passiamto tutto il record cliccato {cod:004, decrizione:acido E300, fornitore ecc..}
+            const material = row.original; // row.original e' una funzione inbuild di TanStack
+            console.log("row.index =", row.index);
+            console.log("material =", material);
+
+            // il m.cod === al material(row.originale).code, cambia di colore se questa condizione corrisponde quando clicchiamo su un record
+            const isSelected = selected.some((m) => m.cod === material.cod); // all'inizio e false xke selected e' un arrai vuoto []
+            // questo serve solo a cambiare il colore quando selezioniamo o diselezioniamo il record
+            console.log("isSelected =", isSelected);
+            return (
+              <tr
+                key={row.id}
+                onClick={() => handleSelect(material)} // material e tutto il record (tutta la linea dati)
+                style={{
+                  backgroundColor: isSelected ? "#dbeafe" : "white", // cambia colore se selezioni e disselezioni
+                  cursor: "pointer",
+                }}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    style={{
+                      border: "1px solid black",
+                      padding: "8px",
+                    }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+      <button
+        onClick={() => {
+          navigate("/recipe", {
+            state: { selected }, // qui passiamo l'array tutti i record selezionati al file RecipeBuilder
+          });
+        }}
+      >
+        Mostra Ricetta
+      </button>
     </div>
   );
 }
