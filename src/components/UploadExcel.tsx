@@ -16,7 +16,7 @@ interface UploadExcelProps {
   // setMaterials è la funzione di React generata da:
   // const [materials, setMaterials] = useState<Material[]>([]); inn scr/App.tsx
   //   Permette al componente di aggiornare lo stato del componente padre.
-  setMaterials: React.Dispatch<React.SetStateAction<Material[]>>; // definiamo l'interfaccia cos'i' ts non da' errors
+  setMaterials: React.Dispatch<React.SetStateAction<Material[]>>; // definiamo il type della funzione react cos'i' ts non da' errors
 }
 
 // Componente React che riceve setMaterials come prop.

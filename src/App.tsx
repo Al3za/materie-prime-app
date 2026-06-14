@@ -23,24 +23,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
-// function App() {
-//   // const [count, setCount] = useState(0);
-//   const [materials, setMaterials] = useState<Material[]>([]);
-//   const [cart, setCart] = useState<CartItem[]>([]);
-
-//   // console.log("materials app here =", materials);
-//   return (
-//     <div>
-//       <h1>Componi ricetta</h1>
-//       <UploadExcel setMaterials={setMaterials} />
-//       {/*props usestate (UploadExcel file)  */}
-//       {/* <MaterialsTable materials={materials} /> */}
-//       <div style={{ marginTop: "20px" }}>
-//         <MaterialsTable materials={materials} />
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default App;
