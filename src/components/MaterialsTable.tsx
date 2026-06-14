@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRecipe } from "../context/RecipeContext";
 import {
   flexRender,
   getCoreRowModel,
@@ -18,22 +19,26 @@ interface MaterialsTableProps {
 }
 
 export default function MaterialsTable({ materials }: MaterialsTableProps) {
-  const [selected, setSelected] = useState<Material[]>([]);
+  // const [selected, setSelected] = useState<Material[]>([]);
+
+  const { selectedMaterials, setSelectedMaterials } = useRecipe();
 
   // quando clicchiamo su qualunque oggetto del record (cod:002, oppore  Zucchero ecc.. l'intero
   //  oggetto (record) viene salvato dentro la variabile
   // Quindi tutti i record che clicchiamo vengono salvati in un ogetto e passati nel file
   //  "recipeBuilder" tramite il props definito a fine fil => navigate(/recipe), state: { selected }.
-  //  (selected contiene la lista di materie cliccate)
+  //  (selected contiene la lista di materie selezionate)
   const handleSelect = (material: Material) => {
     // in material(nel props sopra) passiamo tutto il record cliccato {cod:004, decrizione:acido E300 ecc..}
-    const exists = selected.some((m) => m.cod === material.cod); //true or false (all'inizio e false xke l'array selected e' vuoto e non trova m.cod)
+    const exists = selectedMaterials.some((m) => m.cod === material.cod); //true or false (all'inizio e false xke l'array selected e' vuoto e non trova m.cod)
 
     if (exists) {
       // se abbiamo selezionato erroneamente un record di materie, lo clicchiamo nuovamente e il .filter lo toglie dagli oggetti che abbiamo accumulato in selected
-      setSelected(selected.filter((m) => m.cod !== material.cod));
+      setSelectedMaterials(
+        selectedMaterials.filter((m) => m.cod !== material.cod),
+      );
     } else {
-      setSelected([...selected, material]); // aggiungi il record cliccato in selected. Con la sintassi ...selected, si accumulano piu' record cliccati, fungendo da accumulatore
+      setSelectedMaterials([...selectedMaterials, material]); // aggiungi il record cliccato in selected. Con la sintassi ...selected, si accumulano piu' record cliccati, fungendo da accumulatore
     }
   };
 
@@ -70,6 +75,14 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
     },
   ];
 
+  // il filtro non incide nel context xke e' locale, lo usiamo solo in questa pagina. Se il filtro
+  // incidesse sul Context potrebbe essere un problema, perche il context farebbe il filtro
+  // dati su tutte le pagine che condividono il context(cioe' fare update su piu' pagine).
+  // Ma questo filtro e' locale, perche fa' filtro solo sui dati di questo componente(MaterialTable)
+  //  in locale(const [globalFilter, setGlobalFilter] = useState("") appartiene a questo componente ).
+  // il context preserva nella ram i dati caricati dal file xcell, e i record selezionati che
+  // passiamo tra i componenti. utile per data sharing durante le "sessioni", cioe' fino a quando si tiene l'app accesa
+  // 2000 rows data non sono per niente un problema da avere sulla ram per un pc modernp
   const [globalFilter, setGlobalFilter] = useState("");
 
   const table = useReactTable({
@@ -152,7 +165,11 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
             console.log("material =", material);
 
             // il m.cod === al material(row.originale).code, cambia di colore se questa condizione corrisponde quando clicchiamo su un record
-            const isSelected = selected.some((m) => m.cod === material.cod); // all'inizio e false xke selected e' un arrai vuoto []
+            const isSelected = selectedMaterials.some(
+              (m) => m.cod === material.cod,
+            ); // all'inizio e false xke selected e' un arrai vuoto []. Serve per capire quale row e stato cliccato
+            // per cambiare colore
+
             // questo serve solo a cambiare il colore quando selezioniamo o diselezioniamo il record
             console.log("isSelected =", isSelected);
             return (
@@ -182,13 +199,21 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
       </table>
       <button
         onClick={() => {
-          navigate("/recipe", {
-            state: { selected }, // qui passiamo l'array tutti i record selezionati al file RecipeBuilder
-          });
+          navigate("/recipe"); // i dati vivono nel context, quindi ci basta solo navigare tra le
+          // pagine senza passare props (esempio sotto)
         }}
       >
         Mostra Ricetta
       </button>
+      {/* <button
+        onClick={() => {
+          navigate("/recipe", {
+            state: { selected },
+          }); // i dati vivono nel context, quindi ci basta solo navigare tra le pagine senza passare props
+        }}
+      >
+        Mostra Ricetta
+      </button> */}
     </div>
   );
 }

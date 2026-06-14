@@ -3,15 +3,17 @@
 // Upload Excel
 // + TanStack Table
 // + checkbox
-import { useState } from "react";
-import type { Material } from "../types/material";
+// import { useState } from "react";
+// import type { Material } from "../types/material";
 // import type { CartItem } from "../types/cartItem";
 import UploadExcel from "../components/UploadExcel";
 import MaterialsTable from "../components/MaterialsTable";
+import { useRecipe } from "../context/RecipeContext";
 
 function CreateRecipe() {
   // const [count, setCount] = useState(0);
-  const [materials, setMaterials] = useState<Material[]>([]);
+  // const [materials, setMaterials] = useState<Material[]>([]);
+  const { materials, setMaterials } = useRecipe();
   //   const [selected, setSelected] = useState<Material[]>([]); // per selezionare le materie per le ricette
   //   const [cart, setCart] = useState<CartItem[]>([]);
 
