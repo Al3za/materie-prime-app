@@ -7,13 +7,19 @@ interface RecipeContextType {
   setMaterials: React.Dispatch<React.SetStateAction<Material[]>>; // Type della funzione di react, in modo che Ts non da' error
   selectedMaterials: Material[];
   setSelectedMaterials: React.Dispatch<React.SetStateAction<Material[]>>;
+
+  percentages: Record<string, number>; // per l'input dinamico delle percentuali
+
+  setPercentages: React.Dispatch<React.SetStateAction<Record<string, number>>>;
 }
 
 const RecipeContext = createContext<RecipeContextType | undefined>(undefined);
 
+// children e' l'intera app, wrapped in RecipeProvider nel file main.ts (per poter passare i dati in modo ersistente tra i componenti)
 export function RecipeProvider({ children }: { children: React.ReactNode }) {
   const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
+  const [percentages, setPercentages] = useState<Record<string, number>>({});
 
   return (
     <RecipeContext.Provider
@@ -22,6 +28,8 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
         setMaterials,
         selectedMaterials,
         setSelectedMaterials,
+        percentages,
+        setPercentages,
       }}
     >
       {children}
