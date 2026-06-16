@@ -1,9 +1,10 @@
 // STEP 9 DI CHAT
 // import { useLocation } from "react-router-dom";
-import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { useRecipe } from "../context/RecipeContext"; // il context dove sono salvati i dati dei
 // record selezionati
+// import type { Material } from "../types/material";
 
 export default function RecipeBuilder() {
   // const { state } = useLocation(); // type Materials, (i record che abbiamo scelto da MtrialsTable) (prima di usare context)
@@ -11,7 +12,12 @@ export default function RecipeBuilder() {
   const navigate = useNavigate();
   // selectedMaterials e dove sono salvati i dati dei
   // record selezionati
-  const { selectedMaterials, percentages, setPercentages } = useRecipe();
+  const {
+    selectedMaterials,
+    setSelectedMaterials,
+    percentages,
+    setPercentages,
+  } = useRecipe();
 
   // const [percentages, setPercentages] = useState<Record<string, number>>({}); // <Record<string, number>> serve a far capire a TypeScript che tipo di dati conterrà un oggetto dinamico
   // Record<K, V> è un tipo utility di TypeScript.
@@ -24,6 +30,24 @@ export default function RecipeBuilder() {
     return sum + ingredientCost;
   }, 0);
 
+  // funzione elimina materia
+  const DeleteSelected = (material: any) => {
+    console.log(material, typeof material);
+
+    const exists = selectedMaterials.some((m) => m.cod === material); //true or false (all'inizio e false xke l'array selected e' vuoto e non trova m.cod)
+    console.log("selectedMaterials", selectedMaterials);
+
+    if (exists) {
+      console.log(material, typeof material);
+      console.log(exists, typeof exists, "exist");
+
+      // se abbiamo selezionato erroneamente un record di materie, lo clicchiamo nuovamente e il .filter lo toglie dagli oggetti che abbiamo accumulato in selected
+      setSelectedMaterials(selectedMaterials.filter((m) => m.cod !== material));
+    } else {
+      alert("id not found, retry");
+    }
+  };
+
   return (
     <div>
       <h2>Ricetta</h2>
@@ -32,62 +56,65 @@ export default function RecipeBuilder() {
         style={{
           width: "100%",
           borderCollapse: "collapse",
+          marginTop: "50px",
+          tableLayout: "fixed",
         }}
       >
+        <colgroup>
+          <col style={{ width: "90px" }} />
+          <col style={{ width: "120px" }} />
+          <col style={{ width: "16%" }} />
+          <col style={{ width: "120px" }} />
+          <col style={{ width: "160px" }} />
+          <col style={{ width: "120px" }} />
+        </colgroup>
         <thead>
           <tr>
-            <th
-              style={{
-                borderBottom: "2px solid #ddd",
-                padding: "12px",
-                textAlign: "left",
-              }}
-            >
-              Codice
-            </th>
-            <th
-              style={{
-                borderBottom: "2px solid #ddd",
-                padding: "12px",
-                textAlign: "left",
-              }}
-            >
-              Descrizione
-            </th>
-            <th
-              style={{
-                borderBottom: "2px solid #ddd",
-                padding: "12px",
-                textAlign: "left",
-              }}
-            >
-              Prezzo Acquisto
-            </th>
-            <th
-              style={{
-                borderBottom: "2px solid #ddd",
-                padding: "12px",
-                textAlign: "left",
-              }}
-            >
-              Percentuale
-            </th>
-            <th
-              style={{
-                borderBottom: "2px solid #ddd",
-                padding: "12px",
-                textAlign: "left",
-              }}
-            >
-              Costo
-            </th>
+            <th>Azione</th>
+            <th>Codice</th>
+            <th>Descrizione</th>
+            <th>Prezzo</th>
+            <th>Percentuale</th>
+            <th>Costo</th>
           </tr>
         </thead>
 
         <tbody>
+          {selectedMaterials.length === 0 && (
+            <tr>
+              <td colSpan={6} style={{ padding: "20px", textAlign: "center" }}>
+                Nessun materiale selezionato
+              </td>
+            </tr>
+          )}
           {selectedMaterials.map((item: any) => (
             <tr key={item.cod}>
-              <td style={{ padding: "12px", borderBottom: "1px solid #eee" }}>
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                  textAlign: "center",
+                }}
+              >
+                <button
+                  onClick={() => DeleteSelected(item.cod)}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    border: "1px solid #ddd",
+                    cursor: "pointer",
+                  }}
+                >
+                  🗑️
+                </button>
+              </td>
+
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                }}
+              >
                 {item.cod}
               </td>
 
@@ -95,21 +122,37 @@ export default function RecipeBuilder() {
                 style={{
                   padding: "12px",
                   borderBottom: "1px solid #eee",
-                  maxWidth: "80px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
                 }}
-                title={item.descrizione} // Passando il mouse si vede il testo completo grazie a title.
               >
-                {item.descrizione}
+                <div
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                  title={item.descrizione}
+                >
+                  {item.descrizione}
+                </div>
               </td>
 
-              <td style={{ padding: "12px", borderBottom: "1px solid #eee" }}>
-                {item.prezzoAcquisto} €
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                  textAlign: "center",
+                }}
+              >
+                {Number(item.prezzoAcquisto).toFixed(2)} €
               </td>
 
-              <td style={{ padding: "12px", borderBottom: "1px solid #eee" }}>
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                  textAlign: "center",
+                }}
+              >
                 <input
                   type="number"
                   value={percentages[item.cod] ?? ""}
@@ -121,39 +164,51 @@ export default function RecipeBuilder() {
                   }}
                   style={{
                     width: "80px",
+                    padding: "4px",
+                    textAlign: "center",
                   }}
                 />{" "}
                 %
               </td>
 
-              <td>
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                  textAlign: "center",
+                  fontWeight: 600,
+                }}
+              >
                 {(
                   (item.prezzoAcquisto * (percentages[item.cod] || 0)) /
                   100
-                ).toFixed(2)}
+                ).toFixed(2)}{" "}
                 €
               </td>
             </tr>
           ))}
-
-          <div
-            style={{
-              marginTop: "30px",
-              padding: "15px",
-              border: "2px solid #2563eb",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              fontSize: "20px",
-            }}
-          >
-            <h2>Totale Ricetta: {totalCost.toFixed(2)} €</h2>
-          </div>
         </tbody>
       </table>
+
+      <div
+        style={{
+          marginTop: "30px",
+          padding: "15px",
+          border: "2px solid #2563eb",
+          borderRadius: "8px",
+          fontWeight: "bold",
+          fontSize: "20px",
+        }}
+      >
+        Totale Ricetta: {totalCost.toFixed(2)} €
+      </div>
 
       <button
         style={{
           marginTop: "20px",
+          padding: "10px 16px",
+          borderRadius: "8px",
+          cursor: "pointer",
         }}
         onClick={() => navigate("/create")}
       >
@@ -161,32 +216,4 @@ export default function RecipeBuilder() {
       </button>
     </div>
   );
-  // return (
-  //   <div>
-  //     <h2>Ricetta</h2>
-  //     {selectedMaterials.map((item: any) => (
-  //       <div key={item.cod}>
-  //         <span>{item.cod}</span>
-  //         <span>{item.descrizione}</span>
-  //         <span>{item.prezzoAcquisto}</span>
-  //         <input
-  //           type="number"
-  //           value={percentages[item.cod] ?? ""} // l'utente vedo il field % vuoto
-  //           onChange={(e) => {
-  //             setPercentages({
-  //               ...percentages,
-  //               [item.cod]: Number(e.target.value),
-  //             });
-  //           }}
-  //         />
-  //         <span>%</span> {/*Mostra simbolo % all utente */}
-  //         <span>
-  //           Costo: {(item.prezzoAcquisto * (percentages[item.cod] || 0)) / 100}
-  //         </span>
-  //         €
-  //       </div>
-  //     ))}
-  //     <button onClick={() => navigate("/create")}>Aggiungi a Ricetta</button>
-  //   </div>
-  // );
 }
