@@ -62,9 +62,10 @@ ipcMain.handle("save-materials", async (_, materials) => {
   return true;
 });
 
+// Funzione load-materials
 ipcMain.handle("load-materials", async () => {
-  const filePath = path.join(dataFolder, "materials.json");
-
+  const filePath = path.join(dataFolder, "materials.json"); // dove sono salvati i dati in .json quando abbiamo caricato il file excell
+  console.log("func hit");
   if (!fs.existsSync(filePath)) {
     return [];
   }

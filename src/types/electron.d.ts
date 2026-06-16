@@ -1,11 +1,12 @@
-// import type { Material } from "./material";
+import type { Material } from "./material";
 export {};
 
 declare global {
   interface Window {
     electronAPI: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      saveMaterials: (materials: any[]) => Promise<boolean>;
+      loadMaterials(): Promise<Material[]>; // senza promise, l'await non serve
+
+      saveMaterials: (materials: Material[]) => Promise<boolean>;
     };
   }
 }
