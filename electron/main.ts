@@ -6,12 +6,6 @@ import { app, BrowserWindow, ipcMain } from "electron"; // ipcMain = comunicazio
 import fs from "fs";
 import path from "path";
 
-console.log("Electron avviato");
-// import { fileURLToPath } from "url";
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
 // Creiamo la cartella data
 const dataFolder = path.join(process.cwd(), "data"); // crea la cartella data al root level del progetto
 
@@ -51,7 +45,7 @@ app.on("window-all-closed", () => {
   }
 });
 
-// Funzione saveMaterials
+// Funzione saveMaterials (in file locale)
 ipcMain.handle("save-materials", async (_, materials) => {
   const filePath = path.join(dataFolder, "materials.json");
 
@@ -62,7 +56,7 @@ ipcMain.handle("save-materials", async (_, materials) => {
   return true;
 });
 
-// Funzione load-materials
+// Funzione load-materials (Da file locale)
 ipcMain.handle("load-materials", async () => {
   const filePath = path.join(dataFolder, "materials.json"); // dove sono salvati i dati in .json quando abbiamo caricato il file excell
   console.log("func hit");
@@ -74,3 +68,40 @@ ipcMain.handle("load-materials", async () => {
 
   return JSON.parse(content);
 });
+
+// funzione Salva ricetta (In file locale)
+ipcMain.handle("save-recipe", async (_, recipe) => {
+  // in _, recipe c'e l'object con i dati della ricetta
+  const filePath = path.join(dataFolder, "recipes.json");
+
+  let recipes = [];
+
+  if (fs.existsSync(filePath)) {
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    recipes = JSON.parse(content);
+  }
+
+  // creiamo id personalizzato (R0001, R0002) adattivo in base la lunghezza del file recipes.json
+  let nextId = "R0001";
+
+  if (recipes.length > 0) {
+    const lastRecipe = recipes[recipes.length - 1];
+
+    const lastNumber = Number(lastRecipe.id.replace("R", ""));
+
+    nextId = "R" + String(lastNumber + 1).padStart(4, "0");
+  }
+
+  recipe.id = nextId; // id personalizzato
+
+  recipes.push(recipe);
+
+  fs.writeFileSync(filePath, JSON.stringify(recipes, null, 2), "utf-8");
+
+  console.log("Ricetta salvata");
+
+  return true;
+});
+
+// funzione calcola lunghezza file recipes.json e per creare id : R0001, R0002 ecc...

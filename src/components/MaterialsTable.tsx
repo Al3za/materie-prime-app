@@ -131,6 +131,16 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
           }}
         />
       </div>
+      <div>
+        <button
+          onClick={() => {
+            navigate("/recipe"); // i dati vivono nel context, quindi ci basta solo navigare tra le
+            // pagine senza passare props (esempio sotto)
+          }}
+        >
+          Mostra Ricetta
+        </button>
+      </div>
       <table
         style={{
           borderCollapse: "collapse",
@@ -195,23 +205,6 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
           })}
         </tbody>
       </table>
-      <button
-        onClick={() => {
-          navigate("/recipe"); // i dati vivono nel context, quindi ci basta solo navigare tra le
-          // pagine senza passare props (esempio sotto)
-        }}
-      >
-        Mostra Ricetta
-      </button>
-      {/* <button
-        onClick={() => {
-          navigate("/recipe", {
-            state: { selected },
-          }); // i dati vivono nel context, quindi ci basta solo navigare tra le pagine senza passare props
-        }}
-      >
-        Mostra Ricetta
-      </button> */}
     </div>
   );
 }
