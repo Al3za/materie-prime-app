@@ -1,0 +1,17 @@
+// serve a compilare main e preload.ts in js, cosi' che Electron li puo' leggere ed eseguire (electron esegue solo js)
+// Questo file viene "chiamato" da "build:electron": "tsc -p tsconfig.electron.json" in package.json
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "commonjs", //  Electron no li legge se non sono Common js. da = import { contextBridge, ipcRenderer } from "electron"; del file ts, deve diventare ...... perche Electron li possa leggere e eseguire
+
+    "outDir": "dist-electron", // la cartella dove vanno a finire i file compilati in js
+    "rootDir": "electron", // cartella di origine dove si trovano main.ts e preload.ts
+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+
+  "include": ["electron/**/*.ts"]
+}
