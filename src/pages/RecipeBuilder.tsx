@@ -57,7 +57,7 @@ export default function RecipeBuilder() {
   // FUNZIONE SALVATAGGIO RICETTA
   const handleSaveRecipe = async () => {
     if (!recipeName.trim()) {
-      // alert("Inserisci nome ricetta");
+      alert("Inserisci nome ricetta");
       console.log("Inserisci nome ricetta");
       return;
     }
@@ -257,6 +257,7 @@ export default function RecipeBuilder() {
 
       <button
         style={{
+          marginRight: "10px",
           marginTop: "20px",
           padding: "10px 16px",
           borderRadius: "8px",
@@ -266,7 +267,30 @@ export default function RecipeBuilder() {
       >
         Aggiungi a Ricetta
       </button>
-      <button onClick={handleSaveRecipe}>Salva Ricetta</button>
+      <button
+        style={{
+          marginRight: "10px",
+          marginTop: "20px",
+          padding: "10px 16px",
+          borderRadius: "8px",
+          cursor: "pointer",
+        }}
+        onClick={handleSaveRecipe}
+      >
+        Salva Ricetta
+      </button>
+      <button
+        style={{
+          marginRight: "10px",
+          marginTop: "20px",
+          padding: "10px 16px",
+          borderRadius: "8px",
+          cursor: "pointer",
+        }}
+        onClick={() => navigate("/show_recipes")}
+      >
+        Mostra ricette
+      </button>
     </div>
   );
 }

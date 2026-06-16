@@ -10,6 +10,8 @@ declare global {
       saveMaterials: (materials: Material[]) => Promise<boolean>;
 
       saveRecipe: (recipe: Recipe) => Promise<boolean>;
+
+      loadRecipes(): Promise<Recipe[]>;
     };
   }
 }
