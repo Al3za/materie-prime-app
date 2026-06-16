@@ -3,6 +3,9 @@
 
 import { useNavigate } from "react-router-dom";
 import { useRecipe } from "../context/RecipeContext"; // il context dove sono salvati i dati dei
+import { useState } from "react";
+// import type { Material } from "../types/material";
+import type { Recipe } from "../types/recipe";
 // record selezionati
 // import type { Material } from "../types/material";
 
@@ -19,9 +22,12 @@ export default function RecipeBuilder() {
     setPercentages,
   } = useRecipe();
 
+  const [recipeName, setRecipeName] = useState("");
+
   // const [percentages, setPercentages] = useState<Record<string, number>>({}); // <Record<string, number>> serve a far capire a TypeScript che tipo di dati conterrà un oggetto dinamico
   // Record<K, V> è un tipo utility di TypeScript.
 
+  // Calcola costo totale
   const totalCost = selectedMaterials.reduce((sum, item) => {
     const percentage = percentages[item.cod] || 0;
 
@@ -48,9 +54,55 @@ export default function RecipeBuilder() {
     }
   };
 
+  // FUNZIONE SALVATAGGIO RICETTA
+  const handleSaveRecipe = async () => {
+    if (!recipeName.trim()) {
+      // alert("Inserisci nome ricetta");
+      console.log("Inserisci nome ricetta");
+      return;
+    }
+
+    console.log("save recipe clicked");
+
+    const recipe: Recipe = {
+      // id: crypto.randomUUID(), // l 'id si crea nel server electron
+
+      nome: recipeName,
+
+      createdAt: new Date().toISOString(),
+
+      items: selectedMaterials.map((item) => ({
+        cod: item.cod,
+        descrizione: item.descrizione,
+        prezzoAcquisto: item.prezzoAcquisto,
+        percentuale: percentages[item.cod] || 0,
+        costo: Number(
+          ((item.prezzoAcquisto * (percentages[item.cod] || 0)) / 100).toFixed(
+            2,
+          ),
+        ), // fallo diventare number
+      })),
+
+      totale: Number(totalCost.toFixed(2)),
+    };
+
+    console.log(recipe);
+    const result = await window.electronAPI.saveRecipe(recipe);
+
+    console.log("Ricetta salvata:", result);
+  };
+
   return (
     <div>
       <h2>Ricetta</h2>
+      <div>
+        <input
+          type="text"
+          placeholder="Nome ricetta"
+          value={recipeName}
+          onChange={(e) => setRecipeName(e.target.value)}
+        />
+      </div>
 
       <table
         style={{
@@ -214,6 +266,7 @@ export default function RecipeBuilder() {
       >
         Aggiungi a Ricetta
       </button>
+      <button onClick={handleSaveRecipe}>Salva Ricetta</button>
     </div>
   );
 }
