@@ -1,8 +1,10 @@
+import { useParams } from "react-router-dom";
+import type { Recipe } from "../types/recipe";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Recipe } from "../types/recipe";
 
-export default function RecipeList() {
+export default function RecipeDetail() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
@@ -16,9 +18,37 @@ export default function RecipeList() {
     load();
   }, []);
 
+  const recipe = recipes.find((r) => r.id === id);
+  if (!recipe) {
+    return <div>Ricetta non trovata</div>;
+  }
+
   return (
     <div>
-      <h2>Ricette salvate</h2>
+      <h2>{recipe.nome}</h2>
+
+      <div
+        style={{
+          marginBottom: "20px",
+          padding: "15px",
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+          backgroundColor: "#f9fafb",
+        }}
+      >
+        <p>
+          <strong>ID:</strong> {recipe.id}
+        </p>
+
+        <p>
+          <strong>Data:</strong>{" "}
+          {new Date(recipe.createdAt).toLocaleDateString("it-IT")}
+        </p>
+
+        <p>
+          <strong>Totale:</strong> € {Number(recipe.totale).toFixed(2)}
+        </p>
+      </div>
 
       <table
         style={{
@@ -36,7 +66,7 @@ export default function RecipeList() {
                 textAlign: "center",
               }}
             >
-              ID
+              Codice
             </th>
 
             <th
@@ -46,7 +76,7 @@ export default function RecipeList() {
                 textAlign: "center",
               }}
             >
-              Nome
+              Descrizione
             </th>
 
             <th
@@ -56,7 +86,7 @@ export default function RecipeList() {
                 textAlign: "center",
               }}
             >
-              Data Creazione
+              %
             </th>
 
             <th
@@ -66,47 +96,14 @@ export default function RecipeList() {
                 textAlign: "center",
               }}
             >
-              Totale €
+              Costo €
             </th>
           </tr>
         </thead>
 
         <tbody>
-          {recipes.map((recipe) => (
-            <tr
-              key={recipe.id}
-              style={{
-                cursor: "pointer",
-              }}
-            >
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                }}
-              >
-                {recipe.id}
-              </td>
-
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                  maxWidth: "300px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-                title={recipe.nome}
-              >
-                {recipe.nome}
-              </td>
-
-              {/* <td>
-                <button onClick={() => navigate(`/show_recipes/${recipe.id}`)}>
-                  Apri
-                </button> 
-              </td> */}
+          {recipe.items.map((item) => (
+            <tr key={item.cod}>
               <td
                 style={{
                   padding: "12px",
@@ -114,7 +111,32 @@ export default function RecipeList() {
                   textAlign: "center",
                 }}
               >
-                {new Date(recipe.createdAt).toLocaleDateString("it-IT")}
+                {item.cod}
+              </td>
+
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                  textAlign: "center",
+                  maxWidth: "300px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+                title={item.descrizione}
+              >
+                {item.descrizione}
+              </td>
+
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                  textAlign: "center",
+                }}
+              >
+                {item.percentuale}%
               </td>
 
               <td
@@ -125,42 +147,24 @@ export default function RecipeList() {
                   fontWeight: 600,
                 }}
               >
-                {Number(recipe.totale).toFixed(2)} €
-              </td>
-
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                  textAlign: "center",
-                }}
-              >
-                <button
-                  onClick={() => navigate(`/show_recipes/${recipe.id}`)}
-                  style={{
-                    padding: "6px 12px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Apri
-                </button>
+                € {Number(item.costo).toFixed(2)}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
       <button
         style={{
+          marginRight: "10px",
           marginTop: "20px",
           padding: "10px 16px",
           borderRadius: "8px",
           cursor: "pointer",
         }}
-        onClick={() => navigate("/recipe")}
+        onClick={() => navigate("/create")}
       >
-        ➕ Crea Ricetta
+        {" "}
+        Lista Materiali{" "}
       </button>
     </div>
   );

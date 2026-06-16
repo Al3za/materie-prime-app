@@ -4,6 +4,7 @@ import CreateRecipe from "./pages/CreateRecipe";
 import RecipeBuilder from "./pages/RecipeBuilder";
 import "./App.css";
 import RecipeList from "./components/RecipeList";
+import RecipeDetail from "./components/RecipeDetail";
 
 export default function App() {
   return (
@@ -12,7 +13,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/create" element={<CreateRecipe />} />
         <Route path="/recipe" element={<RecipeBuilder />} />
-        <Route path="/show_recipes" element={<RecipeList />} />
+        <Route path="/show_recipes" element={<RecipeList />} />¨
+        <Route path="/show_recipes/:id" element={<RecipeDetail />} />
       </Routes>
     </BrowserRouter>
   );
