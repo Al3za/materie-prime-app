@@ -23,6 +23,7 @@ export default function RecipeBuilder() {
   } = useRecipe();
 
   const [recipeName, setRecipeName] = useState("");
+  const [message, setMessage] = useState("");
 
   // const [percentages, setPercentages] = useState<Record<string, number>>({}); // <Record<string, number>> serve a far capire a TypeScript che tipo di dati conterrà un oggetto dinamico
   // Record<K, V> è un tipo utility di TypeScript.
@@ -57,10 +58,12 @@ export default function RecipeBuilder() {
   // FUNZIONE SALVATAGGIO RICETTA
   const handleSaveRecipe = async () => {
     if (!recipeName.trim()) {
-      alert("Inserisci nome ricetta");
+      // alert("Inserisci nome ricetta");
+      setMessage("Inserisci nome ricetta");
       console.log("Inserisci nome ricetta");
       return;
     }
+    setMessage(`${recipeName} creata!`);
 
     console.log("save recipe clicked");
 
@@ -103,6 +106,7 @@ export default function RecipeBuilder() {
           onChange={(e) => setRecipeName(e.target.value)}
         />
       </div>
+      {message && <p>{message}</p>}
 
       <table
         style={{
