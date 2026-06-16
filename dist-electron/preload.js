@@ -17,4 +17,6 @@ electron_1.contextBridge.exposeInMainWorld("electronAPI", {
     //-----------// diverse funzioni electron che eseguono diverse funzione come suggerisce il nome dell oggetto
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     saveRecipe: (recipe) => electron_1.ipcRenderer.invoke("save-recipe", recipe),
+    // mostra le ricette
+    loadRecipes: () => electron_1.ipcRenderer.invoke("load-recipes"),
 });

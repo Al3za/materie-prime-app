@@ -104,4 +104,15 @@ ipcMain.handle("save-recipe", async (_, recipe) => {
   return true;
 });
 
-// funzione calcola lunghezza file recipes.json e per creare id : R0001, R0002 ecc...
+// load all recipes
+ipcMain.handle("load-recipes", async () => {
+  const filePath = path.join(dataFolder, "recipes.json");
+
+  if (!fs.existsSync(filePath)) {
+    return [];
+  }
+
+  const content = fs.readFileSync(filePath, "utf-8");
+
+  return JSON.parse(content);
+});

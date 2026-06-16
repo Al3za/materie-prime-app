@@ -21,4 +21,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveRecipe: (recipe: any[]) => ipcRenderer.invoke("save-recipe", recipe),
+
+  // mostra le ricette
+  loadRecipes: () => ipcRenderer.invoke("load-recipes"),
 });

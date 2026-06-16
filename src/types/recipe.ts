@@ -3,10 +3,11 @@ export interface RecipeItem {
   descrizione: string;
   prezzoAcquisto: number;
   percentuale: number;
+  costo: number;
 }
 
 export interface Recipe {
-  // id: string;
+  id?: string;
   nome: string;
   createdAt: string;
   items: RecipeItem[];

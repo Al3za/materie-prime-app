@@ -79,4 +79,12 @@ electron_1.ipcMain.handle("save-recipe", async (_, recipe) => {
     console.log("Ricetta salvata");
     return true;
 });
-// funzione calcola lunghezza file recipes.json e per creare id : R0001, R0002 ecc...
+// load all recipes
+electron_1.ipcMain.handle("load-recipes", async () => {
+    const filePath = path_1.default.join(dataFolder, "recipes.json");
+    if (!fs_1.default.existsSync(filePath)) {
+        return [];
+    }
+    const content = fs_1.default.readFileSync(filePath, "utf-8");
+    return JSON.parse(content);
+});
