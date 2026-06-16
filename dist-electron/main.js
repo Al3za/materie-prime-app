@@ -51,3 +51,13 @@ electron_1.ipcMain.handle("save-materials", async (_, materials) => {
     console.log("materials.json salvato");
     return true;
 });
+// Funzione load-materials
+electron_1.ipcMain.handle("load-materials", async () => {
+    const filePath = path_1.default.join(dataFolder, "materials.json"); // dove sono salvati i dati in .json quando abbiamo caricato il file excell
+    console.log("func hit");
+    if (!fs_1.default.existsSync(filePath)) {
+        return [];
+    }
+    const content = fs_1.default.readFileSync(filePath, "utf-8");
+    return JSON.parse(content);
+});

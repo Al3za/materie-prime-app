@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import type { Material } from "../types/material";
 
@@ -21,6 +21,22 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [percentages, setPercentages] = useState<Record<string, number>>({});
 
+  useEffect(() => {
+    const load = async () => {
+      // Comunicando tramite IPC con electron, chiamiamo la fun loadMaterials nel preload.ts, che a sual volta
+      // invoca "load-materials", per vedere se c'e' il file.json nella cartella "data" che sono la copia dei
+      // file che abbiamo salvato in locale durante l'upload del file excell. Se  il json file esiste usiamo quello
+      // altrimenti si deve caricare un nuovo file (questo serve a fare in modo che lo user carichi il file excell solo 1 volta)
+      const savedMaterials = await window.electronAPI.loadMaterials();
+
+      if (savedMaterials.length > 0) {
+        setMaterials(savedMaterials);
+      }
+    };
+
+    load();
+  }, []);
+
   return (
     <RecipeContext.Provider
       value={{
@@ -30,7 +46,8 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
         setSelectedMaterials,
         percentages,
         setPercentages,
-      }}
+      }} // le variabili contenenti i dati dei materiali del file xcell caricato e le percentuali inserite sulle materie selezionate,
+      //  che passiamo in tutte le componenti delle app e sono persistenti alla navigazione grazie a RecipeContext.Providerr
     >
       {children}
     </RecipeContext.Provider>
