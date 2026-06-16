@@ -161,8 +161,6 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
           {table.getRowModel().rows.map((row) => {
             // in material passiamto tutto il record cliccato {cod:004, decrizione:acido E300, fornitore ecc..}
             const material = row.original; // row.original e' una funzione inbuild di TanStack
-            console.log("row.index =", row.index);
-            console.log("material =", material);
 
             // il m.cod === al material(row.originale).code, cambia di colore se questa condizione corrisponde quando clicchiamo su un record
             const isSelected = selectedMaterials.some(
@@ -171,7 +169,7 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
             // per cambiare colore
 
             // questo serve solo a cambiare il colore quando selezioniamo o diselezioniamo il record
-            console.log("isSelected =", isSelected);
+
             return (
               <tr
                 key={row.id}

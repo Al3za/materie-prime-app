@@ -7,38 +7,18 @@
 import * as XLSX from "xlsx";
 import type { Material } from "../types/material";
 
-// function excelDateToJSDate(serial: number): Date | string {
-//   const excelEpoch = new Date(1899, 11, 30);
-//   return new Date(excelEpoch.getTime() + serial * 24 * 60 * 60 * 1000);
-// }
-
-// function parseItalianDate(dateString: string): Date {
-//   console.log("check data", dateString);
-//   console.log("check data type", typeof dateString);
-//   const [day, month, year] = dateString.split("/");
-
-//   return new Date(Number(year), Number(month) - 1, Number(day));
-// }
-
 export function parseExcel(file: File): Promise<Material[]> {
   return new Promise((resolve) => {
     const reader = new FileReader(); // crea lettore file
-    console.log("parser excell hit 1");
     reader.onload = (e) => {
       // funzione asyncrona che legge i file excelle e fa' i parsing
       const data = e.target?.result; // contenuto del file letto
 
-      console.log("parseExcell 1", data); // arrayBuffer
-
       const workbook = XLSX.read(data, { type: "array" }); // parsing Excel -> sheets name, author name (alessandro calabro), nodified date... e altri metadati del file caricato
 
-      console.log("parseExcell workbook", workbook);
-
       const sheet = workbook.Sheets[workbook.SheetNames[0]]; //il primo sheet del  primo foglio  (il log mostra solo strani metadati)
-      console.log("parseExcell sheet", sheet);
 
       const json = XLSX.utils.sheet_to_json(sheet); // converti in JSON. Un array tutti i dati caricati come nel file,
-      console.log("parseExcell json", json);
 
       // Mappa le colonne che ci servono e i dati annessi
       // Un array dei dati caricati come nel file simile a quello json sopra ma solo con i dati delle colonne descritte in row
@@ -53,12 +33,9 @@ export function parseExcel(file: File): Promise<Material[]> {
         fornitore: row["Cliente / Fornitore"],
       }));
 
-      console.log("parseExcell materials", materials);
-
       const latestMaterials = new Map<string, Material>();
 
       for (const material of materials) {
-        // const stringData = excelDateToJSDate(material)
         const existing = latestMaterials.get(material.cod); // get
 
         if (!existing) {
@@ -82,7 +59,6 @@ export function parseExcel(file: File): Promise<Material[]> {
       }
 
       const uniqueMaterials = Array.from(latestMaterials.values()); // trasforma il Map(dict) in un array
-      console.log("uniqueMaterials testing", uniqueMaterials);
 
       resolve(uniqueMaterials); // ritorna dati tipizzati in formato array
     }; // finisce reader.onload

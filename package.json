@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "electron": "electron electron/main.ts",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron electron/main.ts\"",
+    "electron": "electron dist-electron/main.js",
+    "electron:dev": "concurrently \"npm run dev\" \"npm run build:electron -- --watch\" \"wait-on http://localhost:5173 && electron dist-electron/main.js\"",
+    "build:electron": "tsc -p tsconfig.electron.json && node copy-electron-package.cjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

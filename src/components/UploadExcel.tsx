@@ -36,7 +36,11 @@ export default function UploadExcel({ setMaterials }: UploadExcelProps) {
     // una volta finito il parsing del file excell, passiamo i dati formato array allo useEffect setMaterials,
     // che e' il props del file App.tsx, cosi vedremo i dati nel main page
 
-    setMaterials(materials); // mostriamo in App.tsx i dati del file caricato ricavati su parseExcell.ts
+    setMaterials(materials); // setMaterials e la funzione useState che grazie a Context trasporta i dati caricati qi in tutta l'app, mantenendo lo stato quando navighiamo tra le pagine
+
+    await window.electronAPI.saveMaterials(materials); // saveMaterials e' la funzione in electron/preload che chiamiamo da electron/main. cioe' Inviamo tramite Ipc di electron i dati del file excell caricati.
+
+    console.log("materials salvati");
   };
 
   return <input type="file" accept=".xlsx,.xls" onChange={handleFileUpload} />; // handleFileUpload = la fun all inizio, che accoglie il file excell grezzo,
