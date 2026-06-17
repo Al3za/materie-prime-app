@@ -151,3 +151,31 @@ ipcMain.handle("load-recipes", async () => {
 
   return JSON.parse(content);
 });
+
+// Save settings data (nord, sud, estero)
+ipcMain.handle("save-settings", async (_, settings) => {
+  const filePath = path.join(getDataFolder(), "settings.json");
+
+  fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), "utf-8");
+
+  console.log("settings salvati");
+
+  return true;
+});
+
+// load settings data (nord, sud, estero)
+ipcMain.handle("load-settings", async () => {
+  const filePath = path.join(getDataFolder(), "settings.json");
+
+  if (!fs.existsSync(filePath)) {
+    return {
+      trasporti: {
+        nord: 0,
+        sud: 0,
+        estero: 0,
+      },
+    };
+  }
+
+  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+});

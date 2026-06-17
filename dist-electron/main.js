@@ -115,3 +115,24 @@ electron_1.ipcMain.handle("load-recipes", async () => {
     const content = fs_1.default.readFileSync(filePath, "utf-8");
     return JSON.parse(content);
 });
+// Save settings data (nord, sud, estero)
+electron_1.ipcMain.handle("save-settings", async (_, settings) => {
+    const filePath = path_1.default.join(getDataFolder(), "settings.json");
+    fs_1.default.writeFileSync(filePath, JSON.stringify(settings, null, 2), "utf-8");
+    console.log("settings salvati");
+    return true;
+});
+// load settings data (nord, sud, estero)
+electron_1.ipcMain.handle("load-settings", async () => {
+    const filePath = path_1.default.join(getDataFolder(), "settings.json");
+    if (!fs_1.default.existsSync(filePath)) {
+        return {
+            trasporti: {
+                nord: 0,
+                sud: 0,
+                estero: 0,
+            },
+        };
+    }
+    return JSON.parse(fs_1.default.readFileSync(filePath, "utf-8"));
+});

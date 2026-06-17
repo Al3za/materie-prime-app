@@ -11,6 +11,18 @@ interface RecipeContextType {
   percentages: Record<string, number>; // per l'input dinamico delle percentuali
 
   setPercentages: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+
+  costoLavorazione: number; // per l'input dinamico delle percentuali
+
+  setCostoLavorazione: React.Dispatch<React.SetStateAction<number>>;
+
+  costoEnergia: number; // per l'input dinamico delle percentuali
+
+  setCostoEnergia: React.Dispatch<React.SetStateAction<number>>;
+
+  costoTrasporto: number; // per l'input dinamico delle percentuali
+
+  setCostoTrasporto: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const RecipeContext = createContext<RecipeContextType | undefined>(undefined);
@@ -20,6 +32,9 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
   const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [percentages, setPercentages] = useState<Record<string, number>>({});
+  const [costoLavorazione, setCostoLavorazione] = useState(0);
+  const [costoEnergia, setCostoEnergia] = useState(0);
+  const [costoTrasporto, setCostoTrasporto] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -46,6 +61,12 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
         setSelectedMaterials,
         percentages,
         setPercentages,
+        costoLavorazione,
+        setCostoLavorazione,
+        costoEnergia,
+        setCostoEnergia,
+        costoTrasporto,
+        setCostoTrasporto,
       }} // le variabili contenenti i dati dei materiali del file xcell caricato e le percentuali inserite sulle materie selezionate,
       //  che passiamo in tutte le componenti delle app e sono persistenti alla navigazione grazie a RecipeContext.Providerr
     >
