@@ -10,10 +10,26 @@ const electron_1 = require("electron"); // ipcMain = comunicazione Ipc tra compo
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 // Creiamo la cartella data
-const dataFolder = path_1.default.join(process.cwd(), "data"); // crea la cartella data al root level del progetto
-if (!fs_1.default.existsSync(dataFolder)) {
-    fs_1.default.mkdirSync(dataFolder);
+// const dataFolder = path.join(process.cwd(), "data"); // crea la cartella data al root level del progetto
+// const dataFolder = path.join(
+//   app.getPath("userData"), // app.getPath e importante perche trova trovano i giusti path in production, dopo aver creati il file "Mandorle Cost Tool".exe con electron-build, e li trova anche nel path del PC altri user, quelli che scaricano questo file.exe per usare l'app
+//   "data",
+// );
+// "Dammi la cartella ufficiale (compatibile coni il tuo pc e quello di ogni pc degli user) dove l'app può salvare dati permanenti.". C:\Users\Ale\AppData\Roaming\Mandorle Cost Tool. Questa cartella viene salvata nel file system dello user
+function getDataFolder() {
+    return path_1.default.join(electron_1.app.getPath("userData"), "data");
 }
+// Evita che ci sia un message error quando l'utente apre l'ap la prima volta e non ha ancora il folder "data"
+function ensureDataFolder() {
+    const dataFolder = getDataFolder();
+    if (!fs_1.default.existsSync(dataFolder)) {
+        fs_1.default.mkdirSync(dataFolder, { recursive: true }); //fs.mkdirSync(dataFolder) crea la cartella data, se non c'e'
+        // { recursive: true } crea il percorso definito in datafolder, perche a volte node cerca di creare il folder data su una path che e' piu' corto dell originale, con / in meno
+    }
+}
+// if (!fs.existsSync(dataFolder)) {
+//   fs.mkdirSync(dataFolder, { recursive: true });
+// }
 // function createWindow =  descrizioni della pagina che mostrano il layout dell'app:
 function createWindow() {
     const win = new electron_1.BrowserWindow({
@@ -25,10 +41,19 @@ function createWindow() {
             nodeIntegration: false,
         },
     });
-    win.loadURL("http://localhost:5173");
+    if (electron_1.app.isPackaged) {
+        console.log("isPackaged confirm =", electron_1.app.isPackaged);
+        win.loadFile(path_1.default.join(electron_1.app.getAppPath(), "dist", "index.html"));
+    }
+    else {
+        console.log("is(not)Packaged confirm =", electron_1.app.isPackaged);
+        win.loadURL("http://localhost:5173"); // electron lo usa in dev mode: nmp run electron:dev
+    }
 }
+//"Esegui questo codice solo quando Electron è completamente inizializzato." Cioe' mostra il window con l'interfaccia dell'app quando l'app e' pronta all uso
 electron_1.app.whenReady().then(() => {
-    createWindow();
+    ensureDataFolder();
+    createWindow(); // apre la inestra
     electron_1.app.on("activate", () => {
         if (electron_1.BrowserWindow.getAllWindows().length === 0) {
             createWindow();
@@ -42,14 +67,16 @@ electron_1.app.on("window-all-closed", () => {
 });
 // Funzione saveMaterials (in file locale)
 electron_1.ipcMain.handle("save-materials", async (_, materials) => {
-    const filePath = path_1.default.join(dataFolder, "materials.json");
+    // const filePath = path.join(dataFolder, "materials.json");
+    const filePath = path_1.default.join(getDataFolder(), "materials.json");
     fs_1.default.writeFileSync(filePath, JSON.stringify(materials, null, 2), "utf-8");
     console.log("materials.json salvato");
     return true;
 });
 // Funzione load-materials (Da file locale)
 electron_1.ipcMain.handle("load-materials", async () => {
-    const filePath = path_1.default.join(dataFolder, "materials.json"); // dove sono salvati i dati in .json quando abbiamo caricato il file excell
+    // const filePath = path.join(dataFolder, "materials.json"); // dove sono salvati i dati in .json quando abbiamo caricato il file excell
+    const filePath = path_1.default.join(getDataFolder(), "materials.json"); // dove sono salvati i dati in .json quando abbiamo caricato il file excell
     console.log("func hit");
     if (!fs_1.default.existsSync(filePath)) {
         return [];
@@ -57,10 +84,10 @@ electron_1.ipcMain.handle("load-materials", async () => {
     const content = fs_1.default.readFileSync(filePath, "utf-8");
     return JSON.parse(content);
 });
-// funzione Salva ricetta (In file locale)
+// funzione Salva ricetta (In file locale) (ricorda di aggiungere una funzione che ti avverte se la ricetta ha lo stesso nome di un altra. poi magari fai scegliere se sovrascrivere. poi possiamo anche inserire il delete recept)
 electron_1.ipcMain.handle("save-recipe", async (_, recipe) => {
     // in _, recipe c'e l'object con i dati della ricetta
-    const filePath = path_1.default.join(dataFolder, "recipes.json");
+    const filePath = path_1.default.join(getDataFolder(), "recipes.json");
     let recipes = [];
     if (fs_1.default.existsSync(filePath)) {
         const content = fs_1.default.readFileSync(filePath, "utf-8");
@@ -81,7 +108,7 @@ electron_1.ipcMain.handle("save-recipe", async (_, recipe) => {
 });
 // load all recipes
 electron_1.ipcMain.handle("load-recipes", async () => {
-    const filePath = path_1.default.join(dataFolder, "recipes.json");
+    const filePath = path_1.default.join(getDataFolder(), "recipes.json");
     if (!fs_1.default.existsSync(filePath)) {
         return [];
     }

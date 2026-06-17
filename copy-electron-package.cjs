@@ -16,6 +16,7 @@ fs.writeFileSync(
   path.join(dist, "package.json"),
   JSON.stringify(
     {
+      main: "main.js",
       type: "commonjs",
     },
     null,

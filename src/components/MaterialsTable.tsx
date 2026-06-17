@@ -126,7 +126,7 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
             fontSize: "14px",
             outline: "none",
             boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            marginBottom: "20px",
+            marginBottom: "10px",
             marginTop: "30 px",
           }}
         />
@@ -134,11 +134,23 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
       <div>
         <button
           onClick={() => {
-            navigate("/recipe"); // i dati vivono nel context, quindi ci basta solo navigare tra le
-            // pagine senza passare props (esempio sotto)
+            navigate("/recipe");
+          }}
+          style={{
+            marginBottom: "13px",
+            padding: "10px 18px",
+            backgroundColor: "#2563eb",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: 600,
+            boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+            transition: "all 0.2s ease",
           }}
         >
-          Mostra Ricetta
+          📋 Mostra Ricetta
         </button>
       </div>
       <table

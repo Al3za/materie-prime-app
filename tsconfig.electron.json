@@ -3,7 +3,7 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "module": "commonjs", //  Electron no li legge se non sono Common js. da = import { contextBridge, ipcRenderer } from "electron"; del file ts, deve diventare ...... perche Electron li possa leggere e eseguire
+    "module": "commonjs", //  Electron no li legge se non sono Common js. da = import { contextBridge, ipcRenderer } from "electron"; del file ts, deve diventare --- "use strict"; Object.defineProperty(exports, "__esModule", { value: true }); const electron_1 = require("electron"); -- purche' Electron li possa leggere e eseguire
 
     "outDir": "dist-electron", // la cartella dove vanno a finire i file compilati in js
     "rootDir": "electron", // cartella di origine dove si trovano main.ts e preload.ts
