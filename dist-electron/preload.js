@@ -19,4 +19,9 @@ electron_1.contextBridge.exposeInMainWorld("electronAPI", {
     saveRecipe: (recipe) => electron_1.ipcRenderer.invoke("save-recipe", recipe),
     // mostra le ricette
     loadRecipes: () => electron_1.ipcRenderer.invoke("load-recipes"),
+    // salva i settings (nord, sud, estero)
+    loadSettings: () => electron_1.ipcRenderer.invoke("load-settings"),
+    // mostra i settings (nord, sud, estero)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    saveSettings: (settings) => electron_1.ipcRenderer.invoke("save-settings", settings),
 });

@@ -3,9 +3,10 @@
 
 import { useNavigate } from "react-router-dom";
 import { useRecipe } from "../context/RecipeContext"; // il context dove sono salvati i dati dei
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import type { Material } from "../types/material";
 import type { Recipe } from "../types/recipe";
+import type { DatiUtente } from "../types/settings";
 // record selezionati
 // import type { Material } from "../types/material";
 
@@ -20,6 +21,12 @@ export default function RecipeBuilder() {
     setSelectedMaterials,
     percentages,
     setPercentages,
+    costoLavorazione,
+    setCostoLavorazione,
+    costoEnergia,
+    setCostoEnergia,
+    costoTrasporto,
+    setCostoTrasporto,
   } = useRecipe();
 
   const [recipeName, setRecipeName] = useState("");
@@ -94,6 +101,20 @@ export default function RecipeBuilder() {
 
     console.log("Ricetta salvata:", result);
   };
+
+  // per i settings data
+  // const [trasporti, setTrasporti] = useState<DatiUtente>();
+
+  // // Caricamento automatico quando si carica la pagina
+  // useEffect(() => {
+  //   const load = async () => {
+  //     const settings = await window.electronAPI.loadSettings();
+
+  //      setTrasporti(settings.trasporti);
+  //   };
+
+  //   load();
+  // }, []);
 
   return (
     <div>
@@ -245,6 +266,38 @@ export default function RecipeBuilder() {
           ))}
         </tbody>
       </table>
+
+      <h3>Costi aggiuntivi</h3>
+
+      <div>
+        <label>Costo lavorazione (€)</label>
+
+        <input
+          type="number"
+          value={costoLavorazione}
+          onChange={(e) => setCostoLavorazione(Number(e.target.value))}
+        />
+      </div>
+
+      <div>
+        <label>Costo energia/gas (€)</label>
+
+        <input
+          type="number"
+          value={costoEnergia}
+          onChange={(e) => setCostoEnergia(Number(e.target.value))}
+        />
+      </div>
+
+      <div>
+        <label>Costo trasporto (€)</label>
+
+        <input
+          type="number"
+          value={costoTrasporto}
+          onChange={(e) => setCostoTrasporto(Number(e.target.value))}
+        />
+      </div>
 
       <div
         style={{

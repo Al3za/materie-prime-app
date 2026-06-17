@@ -24,4 +24,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // mostra le ricette
   loadRecipes: () => ipcRenderer.invoke("load-recipes"),
+
+  // salva i settings (nord, sud, estero)
+  loadSettings: () => ipcRenderer.invoke("load-settings"),
+
+  // mostra i settings (nord, sud, estero)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  saveSettings: (settings: any) =>
+    ipcRenderer.invoke("save-settings", settings),
 });

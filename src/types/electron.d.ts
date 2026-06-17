@@ -12,6 +12,8 @@ declare global {
       saveRecipe: (recipe: Recipe) => Promise<boolean>;
 
       loadRecipes(): Promise<Recipe[]>;
+
+      loadSettings(): Promise<settings[]>;
     };
   }
 }
