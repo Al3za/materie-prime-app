@@ -53,7 +53,7 @@ function createWindow() {
   });
 
   if (app.isPackaged) {
-    console.log("isPackaged confirm =", app.isPackaged);
+    console.log("isPackaged confirm =", app.isPackaged); // lo vediamo nel log quando abbiamo creato file.exe
     win.loadFile(
       path.join(app.getAppPath(), "dist", "index.html"), // getAppPath e importante perche si trovano i giusti path in production,
       //  dopo aver creati il file "Mandorle Cost Tool".exe con electron-build, e li trova anche nel path del PC altri user, quelli che scaricano questo file.exe per usare l'app

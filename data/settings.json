@@ -1,7 +1,7 @@
 {
   "trasporti": {
-    "nord": 0.08,
-    "sud": 3.1,
-    "estero": 1
+    "nord": 2000,
+    "sud": 400,
+    "estero": 5000
   }
 }
