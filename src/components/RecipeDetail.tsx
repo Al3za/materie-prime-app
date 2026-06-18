@@ -23,6 +23,8 @@ export default function RecipeDetail() {
     return <div>Ricetta non trovata</div>;
   }
 
+  console.log("check", recipe.trasporto);
+
   return (
     <div>
       <h2>{recipe.nome}</h2>
@@ -46,7 +48,22 @@ export default function RecipeDetail() {
         </p>
 
         <p>
-          <strong>Totale:</strong> € {Number(recipe.totale).toFixed(2)}
+          <strong>Totale Ricetta:</strong> € {Number(recipe.totale).toFixed(2)}
+        </p>
+
+        <p>
+          <strong>Costo lavorazione:</strong> € {recipe.costoLavorazione ?? 0}
+        </p>
+
+        <p>
+          <strong>Costo energia/gas:</strong> € {recipe.costoEnergia ?? 0}
+        </p>
+
+        <p>
+          <strong>Zona</strong>: {recipe.trasporto.zona ?? 0}
+        </p>
+        <p>
+          <strong>Costo trasporto</strong>: € {recipe.trasporto.costo ?? 0}
         </p>
       </div>
 
@@ -161,10 +178,10 @@ export default function RecipeDetail() {
           borderRadius: "8px",
           cursor: "pointer",
         }}
-        onClick={() => navigate("/create")}
+        onClick={() => navigate("/show_recipes")}
       >
         {" "}
-        Lista Materiali{" "}
+        Mostra Ricette{" "}
       </button>
     </div>
   );

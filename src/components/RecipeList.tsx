@@ -58,7 +58,7 @@ export default function RecipeList() {
             >
               Data Creazione
             </th>
-
+            {/* 
             <th
               style={{
                 padding: "12px",
@@ -67,7 +67,7 @@ export default function RecipeList() {
               }}
             >
               Totale €
-            </th>
+            </th> */}
           </tr>
         </thead>
 
@@ -101,12 +101,6 @@ export default function RecipeList() {
               >
                 {recipe.nome}
               </td>
-
-              {/* <td>
-                <button onClick={() => navigate(`/show_recipes/${recipe.id}`)}>
-                  Apri
-                </button> 
-              </td> */}
               <td
                 style={{
                   padding: "12px",
@@ -117,7 +111,7 @@ export default function RecipeList() {
                 {new Date(recipe.createdAt).toLocaleDateString("it-IT")}
               </td>
 
-              <td
+              {/* <td
                 style={{
                   padding: "12px",
                   borderBottom: "1px solid #eee",
@@ -126,7 +120,7 @@ export default function RecipeList() {
                 }}
               >
                 {Number(recipe.totale).toFixed(2)} €
-              </td>
+              </td> */}
 
               <td
                 style={{
@@ -158,7 +152,7 @@ export default function RecipeList() {
           borderRadius: "8px",
           cursor: "pointer",
         }}
-        onClick={() => navigate("/recipe")}
+        onClick={() => navigate("/show_recipes")}
       >
         ➕ Crea Ricetta
       </button>
