@@ -1,0 +1,24 @@
+[
+  {
+    "nome": "new ",
+    "createdAt": "2026-06-18T08:16:19.964Z",
+    "items": [
+      {
+        "cod": "0744",
+        "descrizione": "Acesulfame K E950 alim",
+        "prezzoAcquisto": 20,
+        "percentuale": 10,
+        "costo": 2
+      },
+      {
+        "cod": "0004",
+        "descrizione": "ACIDO ASCORBICO E300",
+        "prezzoAcquisto": 25,
+        "percentuale": 20,
+        "costo": 5
+      }
+    ],
+    "totale": 7,
+    "id": "R0001"
+  }
+]

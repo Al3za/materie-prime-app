@@ -1,0 +1,7 @@
+{
+  "trasporti": {
+    "nord": 0.08,
+    "sud": 3.1,
+    "estero": 1
+  }
+}

@@ -6,7 +6,7 @@ import { useRecipe } from "../context/RecipeContext"; // il context dove sono sa
 import { useEffect, useState } from "react";
 // import type { Material } from "../types/material";
 import type { Recipe } from "../types/recipe";
-import type { DatiUtente } from "../types/settings";
+import type { TrasportiData } from "../types/settings";
 // record selezionati
 // import type { Material } from "../types/material";
 
@@ -102,19 +102,40 @@ export default function RecipeBuilder() {
     console.log("Ricetta salvata:", result);
   };
 
-  // per i settings data
-  // const [trasporti, setTrasporti] = useState<DatiUtente>();
+  const [trasporti, setTrasporti] = useState<TrasportiData>({
+    // se lasci vuota () e come "undefined", e trasforma le var in opzionale "?" che non e' compatibile con l'interfaccia TrasportiData
+    nord: 0,
+    sud: 0,
+    estero: 0,
+  });
 
-  // // Caricamento automatico quando si carica la pagina
-  // useEffect(() => {
-  //   const load = async () => {
-  //     const settings = await window.electronAPI.loadSettings();
+  // Caricamento automatico con i piu' recenti dei settings data (Nord, Sud, Estero) quando si carica la pagina
+  useEffect(() => {
+    const load = async () => {
+      const settings = await window.electronAPI.loadSettings();
+      console.log(settings.trasporti);
 
-  //      setTrasporti(settings.trasporti);
-  //   };
+      setTrasporti(settings.trasporti);
+    };
 
-  //   load();
-  // }, []);
+    load();
+  }, []);
+
+  // Ogni volta che l'utente modifica i dati di coso di trasport questi si salvano nel folder e vengono mostrati quando riapriamo la pagina:
+  const updateTrasporto = (zona: string, value: number) => {
+    const updated = {
+      ...trasporti,
+      [zona]: value,
+    };
+
+    setTrasporti(updated);
+
+    window.electronAPI.saveSettings({
+      trasporti: updated,
+    });
+  };
+
+  const [showTrasporti, setShowTrasporti] = useState<boolean>(false);
 
   return (
     <div>
@@ -292,12 +313,52 @@ export default function RecipeBuilder() {
       <div>
         <label>Costo trasporto (€)</label>
 
-        <input
+        {/* <input
           type="number"
           value={costoTrasporto}
           onChange={(e) => setCostoTrasporto(Number(e.target.value))}
-        />
+        /> */}
+
+        <button onClick={() => setShowTrasporti(!showTrasporti)}>
+          Configura Trasporti
+        </button>
       </div>
+      {/* <button onClick={() => updateTrasporto("sud", 2)}>update trasp</button> crea correttamente file.json */}
+      {showTrasporti && (
+        <div>
+          <div>
+            <label>Nord</label>
+
+            <input
+              type="number"
+              value={trasporti.nord}
+              onChange={(e) => updateTrasporto("nord", Number(e.target.value))}
+            />
+          </div>
+
+          <div>
+            <label>Sud</label>
+
+            <input
+              type="number"
+              value={trasporti.sud}
+              onChange={(e) => updateTrasporto("sud", Number(e.target.value))}
+            />
+          </div>
+
+          <div>
+            <label>Estero</label>
+
+            <input
+              type="number"
+              value={trasporti.estero}
+              onChange={(e) =>
+                updateTrasporto("estero", Number(e.target.value))
+              }
+            />
+          </div>
+        </div>
+      )}
 
       <div
         style={{
