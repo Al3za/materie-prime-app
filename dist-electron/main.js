@@ -50,7 +50,7 @@ function createWindow() {
         },
     });
     if (electron_1.app.isPackaged) {
-        console.log("isPackaged confirm =", electron_1.app.isPackaged);
+        console.log("isPackaged confirm =", electron_1.app.isPackaged); // lo vediamo nel log quando abbiamo creato file.exe
         win.loadFile(path_1.default.join(electron_1.app.getAppPath(), "dist", "index.html"));
     }
     else {

@@ -58,7 +58,7 @@ export default function RecipeList() {
             >
               Data Creazione
             </th>
-            {/* 
+
             <th
               style={{
                 padding: "12px",
@@ -66,8 +66,8 @@ export default function RecipeList() {
                 textAlign: "center",
               }}
             >
-              Totale €
-            </th> */}
+              Dettagli
+            </th>
           </tr>
         </thead>
 
@@ -136,6 +136,12 @@ export default function RecipeList() {
                     borderRadius: "6px",
                     cursor: "pointer",
                   }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#bbf7d0")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#fee2e2")
+                  }
                 >
                   Apri
                 </button>
@@ -148,11 +154,18 @@ export default function RecipeList() {
       <button
         style={{
           marginTop: "20px",
+          marginBottom: "20px",
           padding: "10px 16px",
           borderRadius: "8px",
           cursor: "pointer",
         }}
-        onClick={() => navigate("/show_recipes")}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.backgroundColor = "#fecaca")
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.backgroundColor = "#fee2e2")
+        }
+        onClick={() => navigate("/recipe")}
       >
         ➕ Crea Ricetta
       </button>

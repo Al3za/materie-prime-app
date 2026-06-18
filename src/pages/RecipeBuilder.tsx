@@ -52,11 +52,19 @@ export default function RecipeBuilder() {
   // Calcola costo totale
   const totalCost = selectedMaterials.reduce((sum, item) => {
     const percentage = percentages[item.cod] || 0;
+    console.log("percentage check", percentage);
 
     const ingredientCost = (item.prezzoAcquisto * percentage) / 100;
 
     return sum + ingredientCost;
   }, 0);
+
+  //Somma totale % per non sforare 100%
+
+  const totalePercentuali = Object.values(percentages).reduce(
+    (acc, value) => acc + value,
+    0,
+  );
 
   // somma dei costi aggiuntivi
   const totaleCostiAggiuntivi =
@@ -84,6 +92,12 @@ export default function RecipeBuilder() {
 
   // FUNZIONE SALVATAGGIO RICETTA
   const handleSaveRecipe = async () => {
+    if (totalePercentuali > 100) {
+      console.error("La somma delle percentuali supera il 100%");
+      setMessage("La somma delle percentuali supera il 100%");
+      return;
+    }
+
     if (!recipeName.trim()) {
       // alert("Inserisci nome ricetta");
       setMessage("Inserisci nome ricetta");

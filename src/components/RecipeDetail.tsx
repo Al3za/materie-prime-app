@@ -26,45 +26,51 @@ export default function RecipeDetail() {
   console.log("check", recipe.trasporto);
 
   return (
-    <div>
-      <h2>{recipe.nome}</h2>
-
+    <div
+      style={{
+        marginBottom: "20px",
+        padding: "20px",
+        border: "1px solid #ddd",
+        borderRadius: "8px",
+        backgroundColor: "#f9fafb",
+      }}
+    >
       <div
         style={{
-          marginBottom: "20px",
-          padding: "15px",
-          border: "1px solid #ddd",
-          borderRadius: "8px",
-          backgroundColor: "#f9fafb",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "15px 40px",
+          alignItems: "center",
         }}
       >
-        <p>
+        <div>
           <strong>ID:</strong> {recipe.id}
-        </p>
+        </div>
 
-        <p>
+        <div>
           <strong>Data:</strong>{" "}
           {new Date(recipe.createdAt).toLocaleDateString("it-IT")}
-        </p>
+        </div>
 
-        <p>
-          <strong>Totale Ricetta:</strong> € {Number(recipe.totale).toFixed(2)}
-        </p>
+        <div>
+          <strong>Totale Ricetta:</strong> €{Number(recipe.totale).toFixed(2)}
+        </div>
 
-        <p>
-          <strong>Costo lavorazione:</strong> € {recipe.costoLavorazione ?? 0}
-        </p>
+        <div>
+          <strong>Costo lavorazione:</strong> €{recipe.costoLavorazione ?? 0}
+        </div>
 
-        <p>
-          <strong>Costo energia/gas:</strong> € {recipe.costoEnergia ?? 0}
-        </p>
+        <div>
+          <strong>Costo energia/gas:</strong> €{recipe.costoEnergia ?? 0}
+        </div>
 
-        <p>
-          <strong>Zona</strong>: {recipe.trasporto.zona ?? 0}
-        </p>
-        <p>
-          <strong>Costo trasporto</strong>: € {recipe.trasporto.costo ?? 0}
-        </p>
+        <div>
+          <strong>Zona:</strong> {recipe.trasporto?.zona ?? "-"}
+        </div>
+
+        <div>
+          <strong>Costo trasporto:</strong> €{recipe.trasporto?.costo ?? 0}
+        </div>
       </div>
 
       <table
@@ -178,6 +184,12 @@ export default function RecipeDetail() {
           borderRadius: "8px",
           cursor: "pointer",
         }}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.backgroundColor = "#fecaca")
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.backgroundColor = "#fee2e2")
+        }
         onClick={() => navigate("/show_recipes")}
       >
         {" "}
