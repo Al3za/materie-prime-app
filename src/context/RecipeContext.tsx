@@ -63,21 +63,21 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
   const [selectedTransport, setSelectedTransport] =
     useState<SelectedTransport | null>(null);
 
-  // useEffect(() => {
-  //   const load = async () => {
-  //     // Comunicando tramite IPC con electron, chiamiamo la fun loadMaterials nel preload.ts, che a sual volta
-  //     // invoca "load-materials", per vedere se c'e' il file.json nella cartella "data" che sono la copia dei
-  //     // file che abbiamo salvato in locale durante l'upload del file excell. Se  il json file esiste usiamo quello
-  //     // altrimenti si deve caricare un nuovo file (questo serve a fare in modo che lo user carichi il file excell solo 1 volta)
-  //     const savedMaterials = await window.electronAPI.loadMaterials();
+  useEffect(() => {
+    const load = async () => {
+      // Comunicando tramite IPC con electron, chiamiamo la fun loadMaterials nel preload.ts, che a sual volta
+      // invoca "load-materials", per vedere se c'e' il file.json nella cartella "data" che sono la copia dei
+      // file che abbiamo salvato in locale durante l'upload del file excell. Se  il json file esiste usiamo quello
+      // altrimenti si deve caricare un nuovo file (questo serve a fare in modo che lo user carichi il file excell solo 1 volta)
+      const savedMaterials = await window.electronAPI.loadMaterials();
 
-  //     if (savedMaterials.length > 0) {
-  //       setMaterials(savedMaterials);
-  //     }
-  //   };
+      if (savedMaterials.length > 0) {
+        setMaterials(savedMaterials);
+      }
+    };
 
-  //   load();
-  // }, []);
+    load();
+  }, []);
 
   return (
     <RecipeContext.Provider
