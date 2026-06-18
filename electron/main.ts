@@ -15,14 +15,21 @@ import path from "path";
 
 // "Dammi la cartella ufficiale (compatibile coni il tuo pc e quello di ogni pc degli user) dove l'app può salvare dati permanenti.". C:\Users\Ale\AppData\Roaming\Mandorle Cost Tool. Questa cartella viene salvata nel file system dello user
 function getDataFolder() {
+  if (!app.isPackaged) {
+    console.log("hit dev");
+    // durante sviluppo, vediamo i dati salvati qui in vs code
+    return path.join(process.cwd(), "data");
+  }
+  // in produzione i dati vengono salvati nel pc in un path legermente diverso che non vediamo in qui in VsCode
   return path.join(app.getPath("userData"), "data");
 }
 
 // Evita che ci sia un message error quando l'utente apre l'ap la prima volta e non ha ancora il folder "data"
 function ensureDataFolder() {
   const dataFolder = getDataFolder();
-
+  console.log("Data folder:", dataFolder);
   if (!fs.existsSync(dataFolder)) {
+    console.log("Creating folder...");
     fs.mkdirSync(dataFolder, { recursive: true }); //fs.mkdirSync(dataFolder) crea la cartella data, se non c'e'
     // { recursive: true } crea il percorso definito in datafolder, perche a volte node cerca di creare il folder data su una path che e' piu' corto dell originale, con / in meno
   }
@@ -51,7 +58,7 @@ function createWindow() {
       path.join(app.getAppPath(), "dist", "index.html"), // getAppPath e importante perche si trovano i giusti path in production,
       //  dopo aver creati il file "Mandorle Cost Tool".exe con electron-build, e li trova anche nel path del PC altri user, quelli che scaricano questo file.exe per usare l'app
 
-      // app.isPackaged ritorna sempre false fino a quando non facciamo il config di configurare electron-builder
+      // app.isPackaged ritorna false quando startiamo l'app in dev, e True quando stai eseguendo l'app generata da Electron Builder (.exe).
       // win.loadFile(path.join(process.cwd(), "dist", "index.html")); // electron lo usa dopo il build e punta alla cartella dist
     );
   } else {
@@ -63,6 +70,7 @@ function createWindow() {
 //"Esegui questo codice solo quando Electron è completamente inizializzato." Cioe' mostra il window con l'interfaccia dell'app quando l'app e' pronta all uso
 app.whenReady().then(() => {
   ensureDataFolder();
+  console.log("opening folder...");
   createWindow(); // apre la inestra
 
   app.on("activate", () => {
@@ -158,7 +166,7 @@ ipcMain.handle("save-settings", async (_, settings) => {
 
   fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), "utf-8");
 
-  console.log("settings salvati");
+  console.log("settings salvati =", settings);
 
   return true;
 });

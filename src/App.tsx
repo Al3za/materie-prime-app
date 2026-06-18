@@ -19,3 +19,5 @@ export default function App() {
     </HashRouter>
   );
 }
+
+// "dist-electron/main.js", in main del package.json principale

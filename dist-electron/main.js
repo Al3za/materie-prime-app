@@ -17,12 +17,20 @@ const path_1 = __importDefault(require("path"));
 // );
 // "Dammi la cartella ufficiale (compatibile coni il tuo pc e quello di ogni pc degli user) dove l'app può salvare dati permanenti.". C:\Users\Ale\AppData\Roaming\Mandorle Cost Tool. Questa cartella viene salvata nel file system dello user
 function getDataFolder() {
+    if (!electron_1.app.isPackaged) {
+        console.log("hit dev");
+        // durante sviluppo, vediamo i dati salvati qui in vs code
+        return path_1.default.join(process.cwd(), "data");
+    }
+    // in produzione i dati vengono salvati nel pc in un path legermente diverso che non vediamo in qui in VsCode
     return path_1.default.join(electron_1.app.getPath("userData"), "data");
 }
 // Evita che ci sia un message error quando l'utente apre l'ap la prima volta e non ha ancora il folder "data"
 function ensureDataFolder() {
     const dataFolder = getDataFolder();
+    console.log("Data folder:", dataFolder);
     if (!fs_1.default.existsSync(dataFolder)) {
+        console.log("Creating folder...");
         fs_1.default.mkdirSync(dataFolder, { recursive: true }); //fs.mkdirSync(dataFolder) crea la cartella data, se non c'e'
         // { recursive: true } crea il percorso definito in datafolder, perche a volte node cerca di creare il folder data su una path che e' piu' corto dell originale, con / in meno
     }
@@ -53,6 +61,7 @@ function createWindow() {
 //"Esegui questo codice solo quando Electron è completamente inizializzato." Cioe' mostra il window con l'interfaccia dell'app quando l'app e' pronta all uso
 electron_1.app.whenReady().then(() => {
     ensureDataFolder();
+    console.log("opening folder...");
     createWindow(); // apre la inestra
     electron_1.app.on("activate", () => {
         if (electron_1.BrowserWindow.getAllWindows().length === 0) {
@@ -119,7 +128,7 @@ electron_1.ipcMain.handle("load-recipes", async () => {
 electron_1.ipcMain.handle("save-settings", async (_, settings) => {
     const filePath = path_1.default.join(getDataFolder(), "settings.json");
     fs_1.default.writeFileSync(filePath, JSON.stringify(settings, null, 2), "utf-8");
-    console.log("settings salvati");
+    console.log("settings salvati =", settings);
     return true;
 });
 // load settings data (nord, sud, estero)

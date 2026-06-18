@@ -1,5 +1,6 @@
 import type { Material } from "./material";
 import type { Recipe } from "./recipe";
+import type { SettingsData } from "./settings";
 export {};
 
 declare global {
@@ -13,7 +14,9 @@ declare global {
 
       loadRecipes(): Promise<Recipe[]>;
 
-      loadSettings(): Promise<settings[]>;
+      loadSettings(): Promise<SettingsData>;
+
+      saveSettings(trasporti: SettingsData): Promise<boolean>;
     };
   }
 }
