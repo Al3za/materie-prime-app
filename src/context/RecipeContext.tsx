@@ -38,12 +38,24 @@ interface RecipeContextType {
   setSelectedTransport: React.Dispatch<
     React.SetStateAction<SelectedTransport | null>
   >;
+
+  kgMaterials: Record<string, number>;
+
+  setKgMaterials: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+
+  recipeMode: RecipeMode;
+
+  setRecipeMode: React.Dispatch<React.SetStateAction<RecipeMode>>;
 }
 
+// type dedicato per la persistenza dei traspirti selezionati
 type SelectedTransport = {
   zona: string;
   costo: number;
 };
+
+// type RecipeMode = "percentuale" | "kg"; (dedicato)
+type RecipeMode = "percentuale" | "kg";
 
 const RecipeContext = createContext<RecipeContextType | undefined>(undefined);
 
@@ -63,6 +75,12 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
   const [selectedTransport, setSelectedTransport] =
     useState<SelectedTransport | null>(null);
 
+  const [kgMaterials, setKgMaterials] = useState<Record<string, number>>({});
+  const [recipeMode, setRecipeMode] = useState<RecipeMode>(
+    "percentuale", // defauult
+  );
+
+  // serve per inserire il file.json caricato e passarlo nelle var context in tutta l'app
   useEffect(() => {
     const load = async () => {
       // Comunicando tramite IPC con electron, chiamiamo la fun loadMaterials nel preload.ts, che a sual volta
@@ -96,6 +114,10 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
         setTrasporti,
         selectedTransport,
         setSelectedTransport,
+        kgMaterials,
+        setKgMaterials,
+        recipeMode,
+        setRecipeMode,
       }} // le variabili contenenti i dati dei materiali del file xcell caricato e le percentuali inserite sulle materie selezionate,
       //  che passiamo in tutte le componenti delle app e sono persistenti alla navigazione grazie a RecipeContext.Providerr
     >

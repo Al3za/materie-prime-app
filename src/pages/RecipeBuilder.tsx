@@ -29,6 +29,10 @@ export default function RecipeBuilder() {
     setTrasporti,
     selectedTransport,
     setSelectedTransport,
+    kgMaterials,
+    setKgMaterials,
+    recipeMode,
+    setRecipeMode,
   } = useRecipe();
 
   const [recipeName, setRecipeName] = useState("");
@@ -46,17 +50,24 @@ export default function RecipeBuilder() {
     });
   };
 
-  // const [percentages, setPercentages] = useState<Record<string, number>>({}); // <Record<string, number>> serve a far capire a TypeScript che tipo di dati conterrà un oggetto dinamico
-  // Record<K, V> è un tipo utility di TypeScript.
+  // Calcolare il totale Kg della ricetta
+  // const totaleKg = Object.values(kgMaterials).reduce((acc, kg) => acc + kg, 0);
+  // console.log(totaleKg);
+  const totaleKg = selectedMaterials.reduce(
+    (acc, item) => acc + (kgMaterials[item.cod] || 0),
+    0,
+  );
 
-  // Calcola costo totale
-  const totalCost = selectedMaterials.reduce((sum, item) => {
-    const percentage = percentages[item.cod] || 0;
-    console.log("percentage check", percentage);
+  // Calcola costo totale materie prime
+  const totaleMateriePrime = selectedMaterials.reduce((acc, item) => {
+    const percentualeDaUsare =
+      recipeMode === "kg"
+        ? totaleKg > 0
+          ? ((kgMaterials[item.cod] || 0) / totaleKg) * 100
+          : 0
+        : percentages[item.cod] || 0;
 
-    const ingredientCost = (item.prezzoAcquisto * percentage) / 100;
-
-    return sum + ingredientCost;
+    return acc + (item.prezzoAcquisto * percentualeDaUsare) / 100;
   }, 0);
 
   //Somma totale % per non sforare 100%
@@ -71,23 +82,36 @@ export default function RecipeBuilder() {
     costoLavorazione + costoEnergia + (selectedTransport?.costo || 0);
 
   // il totale tra materie prime e lavorazioni/trasporti
-  const totaleFinale = totalCost + totaleCostiAggiuntivi;
+  const totaleFinale = totaleMateriePrime + totaleCostiAggiuntivi;
 
-  // funzione elimina materia
-  const DeleteSelected = (material: any) => {
-    console.log(material, typeof material);
+  const DeleteSelected = (material: string) => {
+    const exists = selectedMaterials.some((m) => m.cod === material);
 
-    const exists = selectedMaterials.some((m) => m.cod === material); //true or false (all'inizio e false xke l'array selected e' vuoto e non trova m.cod)
-
-    if (exists) {
-      console.log(material, typeof material);
-      console.log(exists, typeof exists, "exist");
-
-      // se abbiamo selezionato erroneamente un record di materie, lo clicchiamo nuovamente e il .filter lo toglie dagli oggetti che abbiamo accumulato in selected
-      setSelectedMaterials(selectedMaterials.filter((m) => m.cod !== material));
-    } else {
-      alert("id not found, retry");
+    if (!exists) {
+      console.log("id not found, retry");
+      return;
     }
+
+    // Rimuove dalla lista materiali
+    setSelectedMaterials(selectedMaterials.filter((m) => m.cod !== material));
+
+    // Rimuove la percentuale associata
+    setPercentages((prev) => {
+      const updated = { ...prev };
+
+      delete updated[material];
+
+      return updated;
+    });
+
+    // Rimuove i kg associati
+    setKgMaterials((prev) => {
+      const updated = { ...prev };
+
+      delete updated[material];
+
+      return updated;
+    });
   };
 
   // FUNZIONE SALVATAGGIO RICETTA
@@ -109,25 +133,34 @@ export default function RecipeBuilder() {
     console.log("save recipe clicked");
 
     const recipe: Recipe = {
-      // id: crypto.randomUUID(), // l 'id si crea nel server electron
-
+      // id: // l 'id si crea nel server electron
+      // mode: recipeMode? "kg":"percentuale",
       nome: recipeName,
 
       createdAt: new Date().toISOString(),
 
-      items: selectedMaterials.map((item) => ({
-        cod: item.cod,
-        descrizione: item.descrizione,
-        prezzoAcquisto: item.prezzoAcquisto,
-        percentuale: percentages[item.cod] || 0,
-        costo: Number(
-          ((item.prezzoAcquisto * (percentages[item.cod] || 0)) / 100).toFixed(
-            2,
-          ),
-        ), // fallo diventare number
-      })),
+      items: selectedMaterials.map((item) => {
+        const percentualeDaUsare =
+          recipeMode === "kg"
+            ? totaleKg > 0
+              ? ((kgMaterials[item.cod] || 0) / totaleKg) * 100
+              : 0
+            : percentages[item.cod] || 0;
 
-      totale: Number(totalCost.toFixed(2)),
+        return {
+          cod: item.cod,
+          descrizione: item.descrizione,
+          prezzoAcquisto: item.prezzoAcquisto,
+          kg: recipeMode === "kg" ? kgMaterials[item.cod] || 0 : null,
+          // percentuale: percentages[item.cod] || 0,
+          percentuale: Number(percentualeDaUsare.toFixed(2)),
+          costo: Number(
+            ((item.prezzoAcquisto * percentualeDaUsare) / 100).toFixed(2),
+          ),
+        };
+      }),
+
+      totale: Number(totaleMateriePrime.toFixed(2)),
 
       costoLavorazione,
       costoEnergia,
@@ -169,6 +202,14 @@ export default function RecipeBuilder() {
 
   const [showTrasporti, setShowTrasporti] = useState<boolean>(false);
 
+  // context persistent
+  const updateKg = (cod: string, value: number) => {
+    setKgMaterials((prev) => ({
+      ...prev,
+      [cod]: value,
+    }));
+  };
+
   return (
     <div>
       <h2>Ricetta</h2>
@@ -181,6 +222,18 @@ export default function RecipeBuilder() {
         />
       </div>
       {message && <p>{message}</p>}
+      {recipeMode}
+      <div>
+        <button
+          onClick={() => [setKgMaterials({}), setRecipeMode("percentuale")]}
+        >
+          Ricetta %
+        </button>
+
+        <button onClick={() => [setPercentages({}), setRecipeMode("kg")]}>
+          Ricetta Kg
+        </button>
+      </div>
 
       <table
         style={{
@@ -204,6 +257,7 @@ export default function RecipeBuilder() {
             <th>Codice</th>
             <th>Descrizione</th>
             <th>Prezzo</th>
+            {recipeMode === "kg" && <th>Kg</th>}
             <th>Percentuale</th>
             <th>Costo</th>
           </tr>
@@ -217,114 +271,154 @@ export default function RecipeBuilder() {
               </td>
             </tr>
           )}
-          {selectedMaterials.map((item: any) => (
-            <tr key={item.cod}>
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                  textAlign: "center",
-                }}
-              >
-                <button
-                  onClick={() => DeleteSelected(item.cod)}
+          {selectedMaterials.map((item: any) => {
+            // calcola la percentuale del kg del singolo record / totale kg di tutti i records
+            const percentualeKg =
+              totaleKg > 0
+                ? ((kgMaterials[item.cod] || 0) / totaleKg) * 100
+                : 0;
+
+            // a seconda del button % o KG mostriamo il corretto calcolo per fare l'operazione che c'e' nella col. "costo"
+            const percentualeDaUsare =
+              recipeMode === "kg" ? percentualeKg : percentages[item.cod] || 0;
+
+            const costoRiga = (item.prezzoAcquisto * percentualeDaUsare) / 100;
+
+            return (
+              <tr key={item.cod}>
+                <td
                   style={{
-                    padding: "6px 10px",
-                    borderRadius: "6px",
-                    border: "1px solid #ef4444",
-                    backgroundColor: "#fee2e2",
-                    cursor: "pointer",
-                    transition: "0.2s",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#fecaca")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#fee2e2")
-                  }
-                >
-                  🗑️
-                </button>
-              </td>
-
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                }}
-              >
-                {item.cod}
-              </td>
-
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                }}
-              >
-                <div
-                  style={{
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                  title={item.descrizione}
-                >
-                  {item.descrizione}
-                </div>
-              </td>
-
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                  textAlign: "center",
-                }}
-              >
-                {Number(item.prezzoAcquisto).toFixed(2)} €
-              </td>
-
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                  textAlign: "center",
-                }}
-              >
-                <input
-                  type="number"
-                  value={percentages[item.cod] ?? ""}
-                  onChange={(e) => {
-                    setPercentages({
-                      ...percentages,
-                      [item.cod]: Number(e.target.value),
-                    });
-                  }}
-                  style={{
-                    width: "80px",
-                    padding: "4px",
+                    padding: "12px",
+                    borderBottom: "1px solid #eee",
                     textAlign: "center",
                   }}
-                />{" "}
-                %
-              </td>
+                >
+                  <button
+                    onClick={() => DeleteSelected(item.cod)}
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: "6px",
+                      border: "1px solid #ef4444",
+                      backgroundColor: "#fee2e2",
+                      cursor: "pointer",
+                      transition: "0.2s",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#fecaca")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#fee2e2")
+                    }
+                  >
+                    🗑️
+                  </button>
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #eee",
+                  }}
+                >
+                  {item.cod}
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #eee",
+                  }}
+                >
+                  <div
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                    title={item.descrizione}
+                  >
+                    {item.descrizione}
+                  </div>
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #eee",
+                    textAlign: "center",
+                  }}
+                >
+                  {Number(item.prezzoAcquisto).toFixed(2)} €
+                </td>
+                {/* Kg inputs qui */}
+                {recipeMode === "kg" && (
+                  <td
+                    style={{
+                      padding: "12px",
+                      borderBottom: "1px solid #eee",
+                      textAlign: "center",
+                    }}
+                  >
+                    <input
+                      type="number"
+                      value={kgMaterials[item.cod] || 0}
+                      onChange={(e) =>
+                        updateKg(item.cod, Number(e.target.value))
+                      }
+                      style={{
+                        width: "80px",
+                        padding: "4px",
+                        textAlign: "center",
+                      }}
+                    />
+                  </td>
+                )}
 
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                  textAlign: "center",
-                  fontWeight: 600,
-                }}
-              >
-                {(
-                  (item.prezzoAcquisto * (percentages[item.cod] || 0)) /
-                  100
-                ).toFixed(2)}{" "}
-                €
-              </td>
-            </tr>
-          ))}
+                {recipeMode === "kg" ? (
+                  <td>{percentualeKg.toFixed(2)}%</td>
+                ) : (
+                  // hgor
+                  <td
+                    style={{
+                      padding: "12px",
+                      borderBottom: "1px solid #eee",
+                      textAlign: "center",
+                    }}
+                  >
+                    <input
+                      type="number"
+                      value={percentages[item.cod] ?? ""}
+                      onChange={(e) => {
+                        setPercentages({
+                          ...percentages,
+                          [item.cod]: Number(e.target.value),
+                        });
+                      }}
+                      style={{
+                        width: "80px",
+                        padding: "4px",
+                        textAlign: "center",
+                      }}
+                    />{" "}
+                    %
+                  </td>
+                )}
+                {/* fine percentuale  */}
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #eee",
+                    textAlign: "center",
+                    fontWeight: 600,
+                  }}
+                >
+                  {costoRiga}
+                  {/* {(
+                    (item.prezzoAcquisto * (percentages[item.cod] || 0)) /
+                    100
+                  ).toFixed(2)}{" "} */}
+                  €
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
@@ -592,7 +686,7 @@ export default function RecipeBuilder() {
             }}
           >
             <span>Materie Prime</span>
-            <strong>€ {totalCost.toFixed(2)}</strong>
+            <strong>€ {totaleMateriePrime.toFixed(2)}</strong>
           </div>
 
           <hr />
