@@ -160,10 +160,10 @@ export default function RecipeList() {
           cursor: "pointer",
         }}
         onMouseEnter={(e) =>
-          (e.currentTarget.style.backgroundColor = "#fecaca")
+          (e.currentTarget.style.backgroundColor = "#22c55e")
         }
         onMouseLeave={(e) =>
-          (e.currentTarget.style.backgroundColor = "#fee2e2")
+          (e.currentTarget.style.backgroundColor = " #FFFFFF")
         }
         onClick={() => navigate("/recipe")}
       >

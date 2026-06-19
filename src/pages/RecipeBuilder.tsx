@@ -352,8 +352,8 @@ export default function RecipeBuilder() {
           <h3 style={{ marginTop: 0 }}>Costi aggiuntivi</h3>
 
           <div style={{ marginBottom: "15px" }}>
-            <label>Costo lavorazione (€)</label>
-
+            <label>Costo lavorazione (€)</label>{" "}
+            {/* Probabilmente anche questi devono essere salvati su file.json ed essere pers in chiusura app */}
             <input
               type="number"
               value={costoLavorazione}
