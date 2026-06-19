@@ -111,17 +111,6 @@ export default function RecipeList() {
                 {new Date(recipe.createdAt).toLocaleDateString("it-IT")}
               </td>
 
-              {/* <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #eee",
-                  textAlign: "center",
-                  fontWeight: 600,
-                }}
-              >
-                {Number(recipe.totale).toFixed(2)} €
-              </td> */}
-
               <td
                 style={{
                   padding: "12px",
