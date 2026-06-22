@@ -50,8 +50,9 @@ interface RecipeContextType {
 
 // type dedicato per la persistenza dei traspirti selezionati
 type SelectedTransport = {
-  zona: string;
-  costo: number;
+  zona?: string;
+  costo?: number;
+  selected?: boolean;
 };
 
 // type RecipeMode = "percentuale" | "kg"; (dedicato)

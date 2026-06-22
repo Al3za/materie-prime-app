@@ -11,7 +11,7 @@ export default function RecipeDetail() {
   useEffect(() => {
     const load = async () => {
       const data = await window.electronAPI.loadRecipes();
-
+      console.log();
       setRecipes(data);
     };
 
@@ -22,6 +22,8 @@ export default function RecipeDetail() {
   if (!recipe) {
     return <div>Ricetta non trovata</div>;
   }
+
+  console.log(recipe, "check");
 
   console.log("check", recipe.trasporto);
 
@@ -46,6 +48,10 @@ export default function RecipeDetail() {
         <div>
           <strong>ID:</strong> {recipe.id}
         </div>
+
+        {/* <div>
+          <strong>ID:</strong> {}
+        </div> */}
 
         <div>
           <strong>Data:</strong>{" "}

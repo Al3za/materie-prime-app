@@ -4,6 +4,7 @@
 import { useNavigate } from "react-router-dom";
 import { useRecipe } from "../context/RecipeContext"; // il context dove sono salvati i dati dei
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 // import type { Material } from "../types/material";
 import type { Recipe } from "../types/recipe";
 // import type { TrasportiData } from "../types/settings";
@@ -36,23 +37,32 @@ export default function RecipeBuilder() {
   } = useRecipe();
 
   const [recipeName, setRecipeName] = useState("");
-  const [message, setMessage] = useState("");
 
   // Tiene traccia di locazione e costo scelto
   const locazione = async (zona: string, costo: number) => {
-    setSelectedTransport({
-      zona,
-      costo,
-    });
-    console.log("trasporto selezionato", {
-      zona,
-      costo,
-    });
+    const exist = selectedTransport?.zona == zona;
+    console.log(exist, "exist");
+
+    if (exist) {
+      setSelectedTransport({
+        zona: "",
+        costo: 0,
+        selected: true,
+      });
+    } else {
+      // se non metti else non funziona
+      setSelectedTransport({
+        zona,
+        costo,
+        selected: false,
+      });
+    }
   };
+
+  console.log("selectedTransport", selectedTransport);
 
   // Calcolare il totale Kg della ricetta
   // const totaleKg = Object.values(kgMaterials).reduce((acc, kg) => acc + kg, 0);
-  // console.log(totaleKg);
   const totaleKg = selectedMaterials.reduce(
     (acc, item) => acc + (kgMaterials[item.cod] || 0),
     0,
@@ -117,18 +127,19 @@ export default function RecipeBuilder() {
   // FUNZIONE SALVATAGGIO RICETTA
   const handleSaveRecipe = async () => {
     if (totalePercentuali > 100) {
-      console.error("La somma delle percentuali supera il 100%");
-      setMessage("La somma delle percentuali supera il 100%");
+      toast.error("La somma delle percentuali supera il 100%");
+      // setMessage("La somma delle percentuali supera il 100%");
       return;
     }
 
     if (!recipeName.trim()) {
       // alert("Inserisci nome ricetta");
-      setMessage("Inserisci nome ricetta");
+      // setMessage("Inserisci nome ricetta");
+      toast.success("Inserisci nome ricetta");
 
       return;
     }
-    setMessage(`${recipeName} creata!`);
+    toast.success(`${recipeName} creata!`);
 
     console.log("save recipe clicked");
 
@@ -167,23 +178,22 @@ export default function RecipeBuilder() {
       trasporto: selectedTransport,
     };
 
-    console.log(recipe);
     const result = await window.electronAPI.saveRecipe(recipe);
 
     console.log("Ricetta salvata:", result);
   };
 
   // Caricamento automatico con i piu' recenti dei settings data (Nord, Sud, Estero) quando si carica la pagina
-  useEffect(() => {
-    const load = async () => {
-      const settings = await window.electronAPI.loadSettings();
-      console.log(settings.trasporti);
+  // Da eliminare, non serve piu'
+  // useEffect(() => {
+  //   const load = async () => {
+  //     const settings = await window.electronAPI.loadSettings();
 
-      setTrasporti(settings.trasporti);
-    };
+  //     setTrasporti(settings.trasporti);
+  //   };
 
-    load();
-  }, []);
+  //   load();
+  // }, []);
 
   // Ogni volta che l'utente modifica i dati di coso di trasport questi si salvano nel folder e vengono mostrati quando riapriamo la pagina:
   const updateTrasporto = (zona: string, value: number) => {
@@ -195,9 +205,11 @@ export default function RecipeBuilder() {
 
     setTrasporti(updated);
 
-    window.electronAPI.saveSettings({
-      trasporti: updated,
-    });
+    // da eliminare perche non serve. I dati si devono inserire manualmente e non persistere
+    // alla chiusura app
+    // window.electronAPI.saveSettings({
+    //   trasporti: updated,
+    // });
   };
 
   const [showTrasporti, setShowTrasporti] = useState<boolean>(false);
@@ -221,7 +233,6 @@ export default function RecipeBuilder() {
           onChange={(e) => setRecipeName(e.target.value)}
         />
       </div>
-      {message && <p>{message}</p>}
       {recipeMode}
       <div>
         <button
@@ -234,7 +245,7 @@ export default function RecipeBuilder() {
           Ricetta Kg
         </button>
       </div>
-
+      Miscelazione
       <table
         style={{
           width: "100%",
@@ -421,7 +432,7 @@ export default function RecipeBuilder() {
           })}
         </tbody>
       </table>
-
+      {/* aggiungi qui gli imballaggi */}
       <div
         style={{
           display: "flex",
@@ -525,14 +536,17 @@ export default function RecipeBuilder() {
                   value={trasporti.nord}
                   onChange={(e) =>
                     updateTrasporto("nord", Number(e.target.value))
-                  }
+                  } // fai in modo che quando si spunta nors, i dati si aggiornano automaticamente
                   style={{
                     width: "80px",
                     padding: "6px",
                     borderRadius: "6px",
                     border: "1px solid #ccc",
                     backgroundColor:
-                      selectedTransport?.zona === "Nord" ? "#dbeafe" : "white",
+                      selectedTransport?.zona === "Nord" &&
+                      !selectedTransport?.selected
+                        ? "#dbeafe"
+                        : "white",
                   }}
                 />
 
@@ -544,9 +558,10 @@ export default function RecipeBuilder() {
                     border: "1px solid #ccc",
                     cursor: "pointer",
                     backgroundColor:
-                      selectedTransport?.zona === "Nord" ? "#22c55e" : "white",
-                    color:
-                      selectedTransport?.zona === "Nord" ? "white" : "black",
+                      selectedTransport?.zona === "Nord" &&
+                      !selectedTransport?.selected
+                        ? "#22c55e"
+                        : "white",
                   }}
                 >
                   Seleziona
@@ -595,8 +610,6 @@ export default function RecipeBuilder() {
                     cursor: "pointer",
                     backgroundColor:
                       selectedTransport?.zona === "Sud" ? "#22c55e" : "white",
-                    color:
-                      selectedTransport?.zona === "Sud" ? "white" : "black",
                   }}
                 >
                   Seleziona
@@ -685,7 +698,7 @@ export default function RecipeBuilder() {
               marginBottom: "12px",
             }}
           >
-            <span>Materie Prime</span>
+            <span>Miscelazione</span>
             <strong>€ {totaleMateriePrime.toFixed(2)}</strong>
           </div>
 
@@ -718,7 +731,6 @@ export default function RecipeBuilder() {
           </div>
         </div>
       </div>
-
       <div style={{ marginBottom: "10px" }}>
         <button
           style={{

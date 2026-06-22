@@ -9,6 +9,7 @@ export default function RecipeList() {
   useEffect(() => {
     const load = async () => {
       const data = await window.electronAPI.loadRecipes();
+      console.log();
 
       setRecipes(data);
     };

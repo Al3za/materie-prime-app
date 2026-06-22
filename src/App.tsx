@@ -5,18 +5,22 @@ import RecipeBuilder from "./pages/RecipeBuilder";
 import "./App.css";
 import RecipeList from "./components/RecipeList";
 import RecipeDetail from "./components/RecipeDetail";
+import { Toaster } from "react-hot-toast";
 
 export default function App() {
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/create" element={<CreateRecipe />} />
-        <Route path="/recipe" element={<RecipeBuilder />} />
-        <Route path="/show_recipes" element={<RecipeList />} />¨
-        <Route path="/show_recipes/:id" element={<RecipeDetail />} />
-      </Routes>
-    </HashRouter>
+    <>
+      <Toaster />
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/create" element={<CreateRecipe />} />
+          <Route path="/recipe" element={<RecipeBuilder />} />
+          <Route path="/show_recipes" element={<RecipeList />} />¨
+          <Route path="/show_recipes/:id" element={<RecipeDetail />} />
+        </Routes>
+      </HashRouter>
+    </>
   );
 }
 
