@@ -26,6 +26,7 @@ export default function RecipeDetail() {
   console.log(recipe, "check");
 
   console.log("check", recipe.trasporto);
+  console.log("check formato", recipe.imballagio_carta); // trova imballaggio carta > 0
 
   return (
     <div
