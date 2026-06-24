@@ -292,18 +292,51 @@ export default function RecipeBuilder() {
           placeholder="Nome ricetta"
           value={recipeName}
           onChange={(e) => setRecipeName(e.target.value)}
+          style={{
+            width: "350px",
+            padding: "5px 7px",
+            borderRadius: "8px",
+            border: "1px solid #d1d5db",
+            fontSize: "14px",
+            marginBottom: "10px",
+          }}
         />
       </div>
       {recipeMode}
-      <div>
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          marginBottom: "25px",
+        }}
+      >
         <button
           onClick={() => [setKgMaterials({}), setRecipeMode("percentuale")]}
+          style={{
+            padding: "10px 18px",
+            borderRadius: "8px",
+            border: "1px solid #2563eb",
+            cursor: "pointer",
+            backgroundColor:
+              recipeMode === "percentuale" ? "#2563eb" : "#dbeafe",
+            color: recipeMode === "percentuale" ? "white" : "black",
+          }}
         >
           Ricetta %
         </button>
 
-        <button onClick={() => [setPercentages({}), setRecipeMode("kg")]}>
-          Ricetta Kg
+        <button
+          onClick={() => [setPercentages({}), setRecipeMode("kg")]}
+          style={{
+            padding: "10px 18px",
+            borderRadius: "8px",
+            border: "1px solid #2563eb",
+            cursor: "pointer",
+            backgroundColor: recipeMode === "kg" ? "#2563eb" : "#dbeafe",
+            color: recipeMode === "kg" ? "white" : "black",
+          }}
+        >
+          <strong>Ricetta Kg</strong>
         </button>
       </div>
       Miscelazione
@@ -320,6 +353,7 @@ export default function RecipeBuilder() {
           <col style={{ width: "120px" }} />
           <col style={{ width: "16%" }} />
           <col style={{ width: "120px" }} />
+          {recipeMode === "kg" && <col style={{ width: "120px" }} />}
           <col style={{ width: "160px" }} />
           <col style={{ width: "120px" }} />
         </colgroup>
@@ -488,7 +522,6 @@ export default function RecipeBuilder() {
           })}
         </tbody>
       </table>
-      {/* aggiungi qui gli carta */}
       <div
         style={{
           display: "flex",
@@ -498,8 +531,6 @@ export default function RecipeBuilder() {
           width: "100%",
         }}
       >
-        {/* COSTI AGGIUNTIVI */}
-        {/*Inizio pannello costi agg */}
         <div
           style={{
             flex: 1,
@@ -512,134 +543,184 @@ export default function RecipeBuilder() {
         >
           <h3 style={{ marginTop: 0 }}>Packaging</h3>
           <div style={{ marginBottom: "15px" }}>
-            <label>Carta</label>{" "}
-            <div>
+            {/* BOTTONI packaging */}
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                marginBottom: "20px",
+              }}
+            >
               <button
                 onClick={() => [
-                  showWrap && setShowWrap(!showWrap),
+                  showWrap && setShowWrap(false),
                   setShowCarta(!showCarta),
                 ]}
                 style={{
-                  padding: "8px 12px",
-                  borderRadius: "6px",
-                  border: "1px solid #0ea5e9",
-                  backgroundColor: "#e0f2fe",
+                  flex: 1,
+                  padding: "10px",
+                  borderRadius: "8px",
+                  border: "1px solid #2563eb",
                   cursor: "pointer",
-                  transition: "0.2s",
+                  backgroundColor: showCarta ? "#2563eb" : "#dbeafe",
+                  color: showCarta ? "white" : "black",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#bae6fd")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#e0f2fe")
-                }
               >
-                Carta
+                📄 Carta
               </button>
-            </div>
-          </div>
-          {/* secondario  */}
-
-          <div style={{ marginBottom: "15px" }}>
-            <label>Valigetta</label>{" "}
-            <div>
               <button
                 onClick={() => [
-                  showCarta && setShowCarta(!showCarta),
+                  showCarta && setShowCarta(false),
                   setShowWrap(!showWrap),
                 ]}
                 style={{
-                  padding: "8px 12px",
-                  borderRadius: "6px",
-                  border: "1px solid #0ea5e9",
-                  backgroundColor: "#e0f2fe",
+                  flex: 1,
+                  padding: "10px",
+                  borderRadius: "8px",
+                  border: "1px solid #2563eb",
                   cursor: "pointer",
-                  transition: "0.2s",
+                  backgroundColor: showWrap ? "#2563eb" : "#dbeafe",
+                  color: showWrap ? "white" : "black",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#bae6fd")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#e0f2fe")
-                }
               >
-                Wrap
+                🎁 Wrap
               </button>
             </div>
           </div>
+
+          {/*Inizio Carta (senza inputs) */}
+          {showCarta && (
+            <div>
+              {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
+              {Object.entries(carta.formato).map(([formato, costo]) => (
+                <div
+                  key={formato}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px",
+                    borderBottom: "1px solid #eee",
+                  }}
+                >
+                  <span>{formato}</span>
+                  {carta.selected?.costo == costo ? (
+                    <strong> € {costo} </strong>
+                  ) : (
+                    <span>€ {costo}</span>
+                  )}
+
+                  <button
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #ccc",
+                      cursor: "pointer",
+                      backgroundColor:
+                        carta.selected?.formato_carta === formato
+                          ? "#22c55e"
+                          : "white",
+                      color:
+                        carta.selected?.formato_carta === formato
+                          ? "white"
+                          : "black",
+                    }}
+                    onClick={() => Handle_Carta(formato, costo)}
+                  >
+                    Seleziona
+                  </button>
+                </div>
+              ))}
+              {/* Mostrare la selezione corrente */}
+              {/* trova bug qui  */}
+              {carta.selected?.formato_carta && (
+                <div
+                  style={{
+                    marginTop: "15px",
+                    padding: "10px",
+                    borderRadius: "6px",
+                    backgroundColor: "#dcfce7",
+                    border: "1px solid #22c55e",
+                  }}
+                >
+                  ✅ Carta selezionata:{" "}
+                  <strong>{carta.selected.formato_carta}</strong> (€{" "}
+                  {carta.selected.costo})
+                </div>
+              )}
+            </div>
+          )}
+          {/*Inizio wrap */}
+          {showWrap && (
+            <div>
+              {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
+              {Object.entries(wrap.options).map(([nome, costo]) => (
+                <div
+                  key={nome}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px",
+                    borderBottom: "1px solid #eee",
+                  }}
+                >
+                  <span>{nome}</span>
+
+                  {wrap.selected?.costo == costo ? (
+                    <strong>
+                      <span> € {costo}</span>
+                    </strong>
+                  ) : (
+                    <span> € {costo}</span>
+                  )}
+
+                  <button
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #ccc",
+                      cursor: "pointer",
+                      backgroundColor:
+                        wrap.selected?.formato_Wrap === nome ? "#22c55e" : "",
+                      color:
+                        wrap.selected?.formato_Wrap === nome
+                          ? "white"
+                          : "black",
+                    }}
+                    onClick={() => Handle_Wrap(nome, costo)}
+                  >
+                    Seleziona
+                  </button>
+                </div>
+              ))}
+              {/* Mostrare la selezione corrente */}
+              {wrap.selected?.formato_Wrap && (
+                <div
+                  style={{
+                    marginTop: "15px",
+                    padding: "10px",
+                    borderRadius: "6px",
+                    backgroundColor: "#dcfce7",
+                    border: "1px solid #22c55e",
+                  }}
+                >
+                  ✅ Wrap selezionato:
+                  <strong>{wrap.selected?.formato_Wrap}</strong> (€{" "}
+                  {wrap.selected?.costo})
+                </div>
+              )}
+            </div>
+          )}
         </div>
-
-        {/*Inizio Carta (senza inputs) */}
-        {showCarta && (
-          <div>
-            {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
-            {Object.entries(carta.formato).map(([formato, costo]) => (
-              <div key={formato}>
-                <span>{formato}</span> <span></span>
-                <span>€{costo}</span> <span></span>
-                <button
-                  style={{
-                    backgroundColor:
-                      carta.selected?.formato_carta === formato
-                        ? "#22c55e"
-                        : "",
-                  }}
-                  onClick={() => Handle_Carta(formato, costo)}
-                >
-                  Seleziona
-                </button>
-              </div>
-            ))}
-            {/* Mostrare la selezione corrente */}
-            {/* trova bug qui  */}
-            {carta.selected?.formato_carta && (
-              <div>
-                Formato Carta selezionato {carta.selected?.formato_carta}
-                (€ {carta.selected?.costo})
-              </div>
-            )}
-          </div>
-        )}
-        {/*Inizio wrap */}
-        {showWrap && (
-          <div>
-            {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
-            {Object.entries(wrap.options).map(([nome, costo]) => (
-              <div key={nome}>
-                <span>{nome}</span>
-
-                <span>€ {costo}</span>
-
-                <button
-                  style={{
-                    backgroundColor:
-                      wrap.selected?.formato_Wrap === nome ? "#22c55e" : "",
-                  }}
-                  onClick={() => Handle_Wrap(nome, costo)}
-                >
-                  Seleziona
-                </button>
-              </div>
-            ))}
-            {/* Mostrare la selezione corrente */}
-            {wrap.selected?.formato_Wrap && (
-              <div>
-                Wrap selezionato :{wrap.selected?.formato_Wrap}
-                (€ {wrap.selected?.costo})
-              </div>
-            )}
-          </div>
-        )}
         {/* RIEPILOGO */}
         {/*Inizio pannello Riepilogo */}
         <div
           style={{
-            // width: "320px",
             flex: "1",
             border: "1px solid #ddd",
             borderRadius: "8px",
             padding: "20px",
-            // backgroundColor: "#fff",
             backgroundColor: "#fafafa",
             boxSizing: "border-box",
           }}
@@ -649,8 +730,9 @@ export default function RecipeBuilder() {
           <div
             style={{
               display: "flex",
+              alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: "12px",
+              margin: "12px 0",
             }}
           >
             <strong>
@@ -678,11 +760,12 @@ export default function RecipeBuilder() {
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              margin: "12px 0",
+              // justifyContent: "space-between",
+              alignItems: "center",
+              margin: "20px 0",
             }}
           >
-            <span> Costo Lavorazione</span>
+            <span style={{ width: "160px" }}> Costo Lavorazione</span>
             <input
               type="number"
               value={extraCosts.lavorazione}
@@ -693,21 +776,31 @@ export default function RecipeBuilder() {
                 })
               }
               style={{
-                // marginLeft: "10px",
-                width: "100px",
+                width: "90px",
+                padding: "6px",
+                textAlign: "center",
               }}
             />
-            <strong>€ {extraCosts.lavorazione}</strong>
+            <strong
+              style={{
+                marginLeft: "auto",
+                width: "70px",
+                textAlign: "right",
+              }}
+            >
+              € {extraCosts.lavorazione}
+            </strong>
           </div>
 
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              margin: "12px 0",
+              // justifyContent: "space-between",
+              alignItems: "center",
+              margin: "20px 0",
             }}
           >
-            <span>Costo energia/gas</span>
+            <span style={{ width: "160px" }}>Costo energia/gas</span>
             <input
               type="number"
               value={extraCosts.energia}
@@ -718,11 +811,20 @@ export default function RecipeBuilder() {
                 })
               }
               style={{
-                marginLeft: "10px",
-                width: "100px",
+                width: "90px",
+                padding: "6px",
+                textAlign: "center",
               }}
             />
-            <strong>€ {extraCosts.energia}</strong>
+            <strong
+              style={{
+                marginLeft: "auto",
+                width: "70px",
+                textAlign: "right",
+              }}
+            >
+              € {extraCosts.energia}
+            </strong>
           </div>
 
           {/* INIZIO TRASPORTI */}
@@ -730,14 +832,21 @@ export default function RecipeBuilder() {
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              margin: "12px 0",
+              // justifyContent: "space-between",
+              alignItems: "center",
+              gap: "20px",
+              margin: "20px 0",
             }}
           >
-            <span>Costo trasporti</span>
+            <span
+              style={{
+                width: "135px",
+              }}
+            >
+              Costo trasporti
+            </span>
             {/* <strong>€ {costoEnergia}</strong> */}
-          </div>
-          <div>
+
             <button
               onClick={() => setShowTrasporti(!showTrasporti)}
               style={{
