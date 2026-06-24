@@ -2,6 +2,46 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 import type { Material } from "../types/material";
 
+type TransportState = {
+  prezzi: {
+    nord: number;
+    sud: number;
+    estero: number;
+  };
+  selected: CostOption | null;
+};
+
+type CartaState = {
+  formato: {
+    "1000": number;
+    "500": number;
+    "250": number;
+    "200": number;
+  };
+  selected: CostOption | null;
+};
+
+type WrapState = {
+  options: Record<string, number>;
+  selected: CostOption | null;
+};
+
+type ExtraCostsState = {
+  lavorazione: number;
+  energia: number;
+};
+
+// type RecipeMode = "percentuale" | "kg"; (dedicato)
+type RecipeMode = "percentuale" | "kg";
+
+// type comune
+type CostOption = {
+  formato_carta?: string;
+  formato_Wrap?: string;
+  costo?: number;
+  zona?: string;
+};
+
 interface RecipeContextType {
   materials: Material[]; // type dei dati che andranno ad accumularsi in questo contenitore
   setMaterials: React.Dispatch<React.SetStateAction<Material[]>>; // Type della funzione di react, in modo che Ts non da' error
@@ -12,33 +52,6 @@ interface RecipeContextType {
 
   setPercentages: React.Dispatch<React.SetStateAction<Record<string, number>>>;
 
-  costoLavorazione: number; // per l'input dinamico delle percentuali
-
-  setCostoLavorazione: React.Dispatch<React.SetStateAction<number>>;
-
-  costoEnergia: number; // per l'input dinamico delle percentuali
-
-  setCostoEnergia: React.Dispatch<React.SetStateAction<number>>;
-
-  trasporti: {
-    nord: number;
-    sud: number;
-    estero: number;
-  };
-
-  setTrasporti: React.Dispatch<
-    React.SetStateAction<{
-      nord: number;
-      sud: number;
-      estero: number;
-    }>
-  >;
-  selectedTransport: SelectedTransport | null;
-
-  setSelectedTransport: React.Dispatch<
-    React.SetStateAction<SelectedTransport | null>
-  >;
-
   kgMaterials: Record<string, number>;
 
   setKgMaterials: React.Dispatch<React.SetStateAction<Record<string, number>>>;
@@ -47,72 +60,20 @@ interface RecipeContextType {
 
   setRecipeMode: React.Dispatch<React.SetStateAction<RecipeMode>>;
 
-  carta: {
-    "1000": number;
-    "500": number;
-    "250": number;
-    "200": number;
-  };
+  extraCosts: ExtraCostsState;
+  setExtraCosts: React.Dispatch<React.SetStateAction<ExtraCostsState>>;
 
-  setCarta: React.Dispatch<
-    React.SetStateAction<{
-      "1000": number;
-      "500": number;
-      "250": number;
-      "200": number;
-    }>
-  >;
+  trasporti: TransportState;
+  setTrasporti: React.Dispatch<React.SetStateAction<TransportState>>;
 
-  selectedCarta: SelectedCarta | null;
+  carta: CartaState;
+  setCarta: React.Dispatch<React.SetStateAction<CartaState>>;
 
-  setSelectedCarta: React.Dispatch<React.SetStateAction<SelectedCarta | null>>;
-
-  wrap: {
-    "valigetta 2x6 opaco bianco": number;
-    "valigetta 3x4 opaco nero": number;
-    "valigetta 3x8 opaco verde": number;
-  };
-
-  setWrap: React.Dispatch<
-    React.SetStateAction<{
-      "valigetta 2x6 opaco bianco": number;
-      "valigetta 3x4 opaco nero": number;
-      "valigetta 3x8 opaco verde": number;
-    }>
-  >;
-
-  selectedWrap: SelectedWrap | null;
-
-  setSelectedWrap: React.Dispatch<React.SetStateAction<SelectedWrap | null>>;
+  wrap: WrapState;
+  setWrap: React.Dispatch<React.SetStateAction<WrapState>>;
 }
 
-// type dedicato per la persistenza dei traspirti selezionati
-type SelectedTransport = {
-  zona?: string;
-  costo?: number;
-};
-
-// type RecipeMode = "percentuale" | "kg"; (dedicato)
-type RecipeMode = "percentuale" | "kg";
-
-// packaging carta
-type SelectedCarta = {
-  formato: string;
-  costo: number;
-};
-
-// packaging wrap
-type SelectedWrap = {
-  nome: string;
-  costo: number;
-};
-
-// type comune
-type CostOption = {
-  nome: string;
-  costo: number;
-};
-
+// il context che va' nel provider
 const RecipeContext = createContext<RecipeContextType | undefined>(undefined);
 
 // children e' l'intera app, wrapped in RecipeProvider nel file main.ts (per poter passare i dati in modo ersistente tra i componenti)
@@ -120,43 +81,44 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
   const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [percentages, setPercentages] = useState<Record<string, number>>({});
-  const [costoLavorazione, setCostoLavorazione] = useState(0);
-  const [costoEnergia, setCostoEnergia] = useState(0);
-  // const [costoTrasporto, setCostoTrasporto] = useState(0);
-  const [trasporti, setTrasporti] = useState({
-    nord: 0,
-    sud: 0,
-    estero: 0,
-  });
-  const [selectedTransport, setSelectedTransport] =
-    useState<SelectedTransport | null>(null);
 
+  const [extraCosts, setExtraCosts] = useState<ExtraCostsState>({
+    lavorazione: 0,
+    energia: 0,
+  });
+  const [trasporti, setTrasporti] = useState<TransportState>({
+    prezzi: {
+      nord: 100,
+      sud: 50,
+      estero: 200,
+    },
+    selected: null as CostOption | null,
+  });
   const [kgMaterials, setKgMaterials] = useState<Record<string, number>>({});
   const [recipeMode, setRecipeMode] = useState<RecipeMode>(
     "percentuale", // defauult
   );
-
   // Formato e prezzo di default (cambiabile) carta
-  const [carta, setCarta] = useState({
-    "1000": 10,
-    "500": 5,
-    "250": 2,
-    "200": 1,
+  const [carta, setCarta] = useState<CartaState>({
+    formato: {
+      "1000": 100,
+      "500": 50,
+      "250": 25,
+      "200": 20,
+    },
+    selected: null as CostOption | null,
   });
-
-  const [selectedCarta, setSelectedCarta] = useState<SelectedCarta | null>(
-    null,
-  );
 
   // Formato e prezzo di default (cambiabile) wrap. Se  il cliente vorra' modificarli in futuro, allora converrà spostarli in settings.json
   // come avevamo fatto per trasporti e packaging.
-  const [wrap, setWrap] = useState({
-    "valigetta 2x6 opaco bianco": 15,
-    "valigetta 3x4 opaco nero": 20,
-    "valigetta 3x8 opaco verde": 30,
+  const [wrap, setWrap] = useState<WrapState>({
+    options: {
+      "valigetta 2x6 opaco bianco": 15,
+      "valigetta 3x4 opaco nero": 20,
+      "valigetta 3x8 opaco verde": 30,
+    },
+    selected: null as CostOption | null,
   });
-
-  const [selectedWrap, setSelectedWrap] = useState<SelectedWrap | null>(null);
 
   // serve per inserire il file.json caricato e passarlo nelle var context in tutta l'app
   useEffect(() => {
@@ -184,26 +146,18 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
         setSelectedMaterials,
         percentages,
         setPercentages,
-        costoLavorazione,
-        setCostoLavorazione,
-        costoEnergia,
-        setCostoEnergia,
-        trasporti,
-        setTrasporti,
-        selectedTransport,
-        setSelectedTransport,
         kgMaterials,
         setKgMaterials,
         recipeMode,
         setRecipeMode,
+        extraCosts,
+        setExtraCosts,
+        trasporti,
+        setTrasporti,
         carta,
         setCarta,
-        selectedCarta,
-        setSelectedCarta,
         wrap,
         setWrap,
-        selectedWrap,
-        setSelectedWrap,
       }} // le variabili contenenti i dati dei materiali del file xcell caricato e le percentuali inserite sulle materie selezionate,
       //  che passiamo in tutte le componenti delle app e sono persistenti alla navigazione grazie a RecipeContext.Providerr
     >

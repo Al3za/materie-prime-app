@@ -22,48 +22,41 @@ export default function RecipeBuilder() {
     setSelectedMaterials,
     percentages,
     setPercentages,
-    costoLavorazione,
-    setCostoLavorazione,
-    costoEnergia,
-    setCostoEnergia,
+    extraCosts,
+    setExtraCosts,
     trasporti,
     setTrasporti,
-    selectedTransport, // per persistenza context e' mostrare il bottone cliccato durante navigazione pagina
-    setSelectedTransport, // per persistenza context e' mostrare il bottone cliccato durante navigazione pagina
     kgMaterials,
     setKgMaterials,
     recipeMode,
     setRecipeMode,
     carta,
     setCarta,
-    selectedCarta, // per persistenza context e' mostrare il bottone cliccato durante navigazione pagina
-    setSelectedCarta, // per persistenza context e' mostrare il bottone cliccato durante navigazione pagina
     wrap,
     setWrap,
-    selectedWrap,
-    setSelectedWrap,
   } = useRecipe();
 
   const [recipeName, setRecipeName] = useState("");
 
   // Tiene traccia di locazione e costo scelto
   const locazione = async (zona: string, costo: number) => {
-    const exist = selectedTransport?.zona == zona;
-    // console.log(exist, "exist");
-
+    const exist = trasporti.selected?.zona == zona;
     if (exist) {
-      setSelectedTransport({
-        zona: "",
-        costo: 0,
-        // selected: true,
-      });
+      setTrasporti((prev) => ({
+        ...prev,
+        selected: {
+          zona: "",
+        },
+      }));
     } else {
       // se non metti else non funziona
-      setSelectedTransport({
-        zona,
-        costo,
-        // selected: false,
-      });
+      setTrasporti((prev) => ({
+        ...prev,
+        selected: {
+          zona,
+          costo,
+        },
+      }));
     }
   };
 
@@ -98,11 +91,13 @@ export default function RecipeBuilder() {
 
   // somma dei costi aggiuntivi, (costo lav, costo energia gas, costo trasporto)
   const totaleCostiAggiuntivi =
-    costoLavorazione + costoEnergia + (selectedTransport?.costo || 0);
+    extraCosts.lavorazione +
+    extraCosts.energia +
+    (trasporti.selected?.costo || 0);
 
   // Tot packaging
   const totalePackaging =
-    (selectedCarta?.costo ?? 0) + (selectedWrap?.costo ?? 0);
+    (carta.selected?.costo ?? 0) + (wrap.selected?.costo ?? 0);
 
   // il totale tra materie prime e lavorazioni/trasporti
   const totaleFinale =
@@ -158,7 +153,7 @@ export default function RecipeBuilder() {
     console.log("save recipe clicked");
 
     const recipe: Recipe = {
-      // id: // l 'id si crea nel server electron
+      // id: // l'id si crea nel server electron
       // mode: recipeMode? "kg":"percentuale",
       nome: recipeName,
 
@@ -187,13 +182,13 @@ export default function RecipeBuilder() {
 
       totale: Number(totaleMateriePrime.toFixed(2)),
 
-      costoLavorazione,
-      costoEnergia,
-      trasporto: selectedTransport,
+      costoLavorazione: extraCosts.lavorazione,
+      costoEnergia: extraCosts.energia,
+      trasporto: trasporti.selected?.costo,
       // salviamo imballaggi data
       // imballagio_carta: carta,
-      imballagio_carta: selectedCarta,
-      wrap: selectedWrap,
+      imballagio_carta: carta.selected?.costo,
+      wrap: wrap.selected?.costo,
     };
 
     const result = await window.electronAPI.saveRecipe(recipe);
@@ -214,14 +209,15 @@ export default function RecipeBuilder() {
   // }, []);
 
   // Ogni volta che l'utente modifica i dati di coso di trasport questi si salvano nel folder e vengono mostrati quando riapriamo la pagina:
-  const updateTrasporto = (zona: string, value: number) => {
-    // zona: keyof typeof trasporti
-    const updated = {
-      ...trasporti,
-      [zona]: value,
-    };
+  const updateTrasporto = (zona: string, costo: number) => {
+    setTrasporti((prev) => ({
+      ...prev,
 
-    setTrasporti(updated);
+      prezzi: {
+        ...prev.prezzi,
+        [zona]: costo,
+      },
+    }));
 
     // da eliminare perche non serve. I dati si devono inserire manualmente e non persistere
     // alla chiusura app
@@ -229,23 +225,6 @@ export default function RecipeBuilder() {
     //   trasporti: updated,
     // });
   };
-
-  // funzioni utili quando inseriamo input - prezzo su carta
-  // const updatePackaging = (formato: string, value: number) => {
-  //   // zona: keyof typeof trasporti
-  //   const updated = {
-  //     ...carta,
-  //     [formato]: value,
-  //   };
-
-  //   setCarta(updated);
-
-  //   // da eliminare perche non serve. I dati si devono inserire manualmente e non persistere
-  //   // alla chiusura app
-  //   // window.electronAPI.saveSettings({
-  //   //   trasporti: updated,
-  //   // });
-  // };
 
   const [showTrasporti, setShowTrasporti] = useState<boolean>(false);
   const [showCarta, setShowCarta] = useState<boolean>(false);
@@ -259,58 +238,50 @@ export default function RecipeBuilder() {
     }));
   };
 
-  function Handle_Carta(formato: string, costo: number): void {
-    const exist = selectedCarta?.formato == formato;
+  function Handle_Carta(formato: string, costos: number): void {
+    // const exist = selectedCarta?.formato == formato;
+    const exist = carta.selected?.formato_carta == formato;
+    console.log(exist);
 
     if (exist) {
-      setSelectedCarta({
-        formato: "",
-        costo: 0,
-      });
+      setCarta((prev) => ({
+        ...prev,
+        selected: {
+          formato_carta: "",
+          // costo si azzera qui perche non definito
+        },
+      }));
     } else {
-      setSelectedCarta({
-        formato,
-        costo,
-      });
+      setCarta((prev) => ({
+        ...prev,
+        selected: {
+          formato_carta: formato,
+          costo: costos,
+        },
+      }));
     }
   }
 
-  function Handle_Wrap(nome: string, costo: number): void {
-    const exist = selectedWrap?.nome == nome;
+  function Handle_Wrap(formato_wrap: string, costo: number): void {
+    const exist = wrap.selected?.formato_Wrap == formato_wrap;
 
     if (exist) {
-      setSelectedWrap({
-        nome: "",
-        costo: 0,
-      });
+      setWrap((prev) => ({
+        ...prev,
+        selected: {
+          formato_Wrap: "",
+        },
+      }));
     } else {
-      setSelectedWrap({
-        nome,
-        costo,
-      });
+      setWrap((prev) => ({
+        ...prev,
+        selected: {
+          formato_Wrap: formato_wrap,
+          costo,
+        },
+      }));
     }
   }
-
-  // anche questa e' utile quando usiamo input sugli
-  // function updateButtonColor(formato: string) {
-  //   const exist = selectedCarta?.formato == formato;
-  //   console.log(exist, "exist");
-
-  //   if (exist) {
-  //     setSelectedCarta({
-  //       formato: "0",
-  //       costo: 0,
-  //       // selected: true,
-  //     });
-  //   } else {
-  //     // se non metti else non funziona
-  //     setSelectedCarta({
-  //       formato,
-  //       costo: 0,
-  //       // selected: false,
-  //     });
-  //   }
-  // }
 
   return (
     <div>
@@ -539,9 +510,9 @@ export default function RecipeBuilder() {
             boxSizing: "border-box",
           }}
         >
-          <h3 style={{ marginTop: 0 }}>carta</h3>
+          <h3 style={{ marginTop: 0 }}>Packaging</h3>
           <div style={{ marginBottom: "15px" }}>
-            <label>Imballagio primario</label>{" "}
+            <label>Carta</label>{" "}
             <div>
               <button
                 onClick={() => [
@@ -570,7 +541,7 @@ export default function RecipeBuilder() {
           {/* secondario  */}
 
           <div style={{ marginBottom: "15px" }}>
-            <label>Imballagio Secondario</label>{" "}
+            <label>Valigetta</label>{" "}
             <div>
               <button
                 onClick={() => [
@@ -597,145 +568,21 @@ export default function RecipeBuilder() {
             </div>
           </div>
         </div>
-        {/* Dati "Carta" con input che cambiano prezzo manualmente */}
-        {/* {showCarta && (
-          <div>
-            <span>1000</span>
-
-            <input
-              type="number"
-              value={carta["1000"]}
-              onChange={(e) => updatePackaging("1000", Number(e.target.value))}
-              style={{
-                width: "80px",
-                padding: "6px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                backgroundColor:
-                  selectedCarta?.formato === "1000" ? "#dbeafe" : "white",
-              }}
-            />
-
-            <button
-              onClick={() => updateButtonColor("1000")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                cursor: "pointer",
-                backgroundColor:
-                  selectedCarta?.formato === "1000" ? "#22c55e" : "white",
-              }}
-            >
-              Seleziona
-            </button>
-
-            <span>500</span>
-
-            <input
-              type="number"
-              value={carta["500"]}
-              onChange={(e) => updatePackaging("500", Number(e.target.value))}
-              style={{
-                width: "80px",
-                padding: "6px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                backgroundColor:
-                  selectedCarta?.formato === "500" ? "#dbeafe" : "white",
-              }}
-            />
-
-            <button
-              onClick={() => updateButtonColor("500")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                cursor: "pointer",
-                backgroundColor:
-                  selectedCarta?.formato === "500" ? "#22c55e" : "white",
-              }}
-            >
-              Seleziona
-            </button>
-
-            <span>250</span>
-
-            <input
-              type="number"
-              value={carta["250"]}
-              onChange={(e) => updatePackaging("250", Number(e.target.value))}
-              style={{
-                width: "80px",
-                padding: "6px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                backgroundColor:
-                  selectedCarta?.formato === "250" ? "#dbeafe" : "white",
-              }}
-            />
-
-            <button
-              onClick={() => updateButtonColor("250")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                cursor: "pointer",
-                backgroundColor:
-                  selectedCarta?.formato === "250" ? "#22c55e" : "white",
-              }}
-            >
-              Seleziona
-            </button>
-
-            <span>200</span>
-
-            <input
-              type="number"
-              value={carta["200"]}
-              onChange={(e) => updatePackaging("200", Number(e.target.value))}
-              style={{
-                width: "80px",
-                padding: "6px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                backgroundColor:
-                  selectedCarta?.formato === "200" ? "#dbeafe" : "white",
-              }}
-            />
-
-            <button
-              onClick={() => updateButtonColor("200")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                cursor: "pointer",
-                backgroundColor:
-                  selectedCarta?.formato === "200" ? "#22c55e" : "white",
-              }}
-            >
-              Seleziona
-            </button>
-          </div>
-        )} */}
 
         {/*Inizio Carta (senza inputs) */}
         {showCarta && (
           <div>
             {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
-            {Object.entries(carta).map(([formato, costo]) => (
+            {Object.entries(carta.formato).map(([formato, costo]) => (
               <div key={formato}>
-                <span>{formato}</span>
-
-                <span>€ {costo}</span>
-
+                <span>{formato}</span> <span></span>
+                <span>€{costo}</span> <span></span>
                 <button
                   style={{
                     backgroundColor:
-                      selectedCarta?.formato === formato ? "#22c55e" : "",
+                      carta.selected?.formato_carta === formato
+                        ? "#22c55e"
+                        : "",
                   }}
                   onClick={() => Handle_Carta(formato, costo)}
                 >
@@ -744,10 +591,11 @@ export default function RecipeBuilder() {
               </div>
             ))}
             {/* Mostrare la selezione corrente */}
-            {selectedCarta && (
+            {/* trova bug qui  */}
+            {carta.selected?.formato_carta && (
               <div>
-                Formato Carta selezionato :{selectedCarta.formato}
-                (€ {selectedCarta.costo})
+                Formato Carta selezionato {carta.selected?.formato_carta}
+                (€ {carta.selected?.costo})
               </div>
             )}
           </div>
@@ -756,7 +604,7 @@ export default function RecipeBuilder() {
         {showWrap && (
           <div>
             {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
-            {Object.entries(wrap).map(([nome, costo]) => (
+            {Object.entries(wrap.options).map(([nome, costo]) => (
               <div key={nome}>
                 <span>{nome}</span>
 
@@ -765,7 +613,7 @@ export default function RecipeBuilder() {
                 <button
                   style={{
                     backgroundColor:
-                      selectedWrap?.nome === nome ? "#22c55e" : "",
+                      wrap.selected?.formato_Wrap === nome ? "#22c55e" : "",
                   }}
                   onClick={() => Handle_Wrap(nome, costo)}
                 >
@@ -774,10 +622,10 @@ export default function RecipeBuilder() {
               </div>
             ))}
             {/* Mostrare la selezione corrente */}
-            {selectedWrap && (
+            {wrap.selected?.formato_Wrap && (
               <div>
-                Wrap selezionato :{selectedWrap.nome}
-                (€ {selectedWrap.costo})
+                Wrap selezionato :{wrap.selected?.formato_Wrap}
+                (€ {wrap.selected?.costo})
               </div>
             )}
           </div>
@@ -805,7 +653,9 @@ export default function RecipeBuilder() {
               marginBottom: "12px",
             }}
           >
-            <span>Totale Miscelazione</span>
+            <strong>
+              <span>Totale Miscelazione</span>
+            </strong>
             <strong>€ {totaleMateriePrime.toFixed(2)}</strong>
           </div>
 
@@ -817,7 +667,9 @@ export default function RecipeBuilder() {
               marginBottom: "12px",
             }}
           >
-            <span>Totale Packaging</span>
+            <strong>
+              <span>Totale Packaging</span>
+            </strong>
             <strong>€ {totalePackaging.toFixed(2)}</strong>
           </div>
 
@@ -833,14 +685,19 @@ export default function RecipeBuilder() {
             <span> Costo Lavorazione</span>
             <input
               type="number"
-              value={costoLavorazione}
-              onChange={(e) => setCostoLavorazione(Number(e.target.value))}
+              value={extraCosts.lavorazione}
+              onChange={(e) =>
+                setExtraCosts({
+                  ...extraCosts,
+                  lavorazione: Number(e.target.value),
+                })
+              }
               style={{
                 // marginLeft: "10px",
                 width: "100px",
               }}
             />
-            <strong>€ {costoLavorazione}</strong>
+            <strong>€ {extraCosts.lavorazione}</strong>
           </div>
 
           <div
@@ -853,14 +710,19 @@ export default function RecipeBuilder() {
             <span>Costo energia/gas</span>
             <input
               type="number"
-              value={costoEnergia}
-              onChange={(e) => setCostoEnergia(Number(e.target.value))}
+              value={extraCosts.energia}
+              onChange={(e) =>
+                setExtraCosts({
+                  ...extraCosts,
+                  energia: Number(e.target.value),
+                })
+              }
               style={{
                 marginLeft: "10px",
                 width: "100px",
               }}
             />
-            <strong>€ {costoEnergia}</strong>
+            <strong>€ {extraCosts.energia}</strong>
           </div>
 
           {/* INIZIO TRASPORTI */}
@@ -923,7 +785,7 @@ export default function RecipeBuilder() {
                 </label>
                 <input
                   type="number"
-                  value={trasporti.nord}
+                  value={trasporti.prezzi.nord}
                   onChange={(e) =>
                     updateTrasporto("nord", Number(e.target.value))
                   } // fai in modo che quando si spunta nors, i dati si aggiornano automaticamente
@@ -933,19 +795,19 @@ export default function RecipeBuilder() {
                     borderRadius: "6px",
                     border: "1px solid #ccc",
                     backgroundColor:
-                      selectedTransport?.zona === "Nord" ? "#dbeafe" : "white",
+                      trasporti.selected?.zona === "Nord" ? "#dbeafe" : "white",
                   }}
                 />
 
                 <button
-                  onClick={() => locazione("Nord", trasporti.nord)}
+                  onClick={() => locazione("Nord", trasporti.prezzi.nord)}
                   style={{
                     padding: "6px 12px",
                     borderRadius: "6px",
                     border: "1px solid #ccc",
                     cursor: "pointer",
                     backgroundColor:
-                      selectedTransport?.zona === "Nord" ? "#22c55e" : "white",
+                      trasporti.selected?.zona === "Nord" ? "#22c55e" : "white",
                   }}
                 >
                   Seleziona
@@ -971,7 +833,7 @@ export default function RecipeBuilder() {
 
                 <input
                   type="number"
-                  value={trasporti.sud}
+                  value={trasporti.prezzi?.sud}
                   onChange={(e) =>
                     updateTrasporto("sud", Number(e.target.value))
                   }
@@ -981,19 +843,19 @@ export default function RecipeBuilder() {
                     borderRadius: "6px",
                     border: "1px solid #ccc",
                     backgroundColor:
-                      selectedTransport?.zona === "Sud" ? "#dbeafe" : "white",
+                      trasporti.selected?.zona === "Sud" ? "#dbeafe" : "white",
                   }}
                 />
 
                 <button
-                  onClick={() => locazione("Sud", trasporti.sud)}
+                  onClick={() => locazione("Sud", trasporti.prezzi?.sud)}
                   style={{
                     padding: "6px 12px",
                     borderRadius: "6px",
                     border: "1px solid #ccc",
                     cursor: "pointer",
                     backgroundColor:
-                      selectedTransport?.zona === "Sud" ? "#22c55e" : "white",
+                      trasporti.selected?.zona === "Sud" ? "#22c55e" : "white",
                   }}
                 >
                   Seleziona
@@ -1020,7 +882,7 @@ export default function RecipeBuilder() {
 
                 <input
                   type="number"
-                  value={trasporti.estero}
+                  value={trasporti.prezzi.estero}
                   onChange={(e) =>
                     updateTrasporto("estero", Number(e.target.value))
                   }
@@ -1030,25 +892,23 @@ export default function RecipeBuilder() {
                     borderRadius: "6px",
                     border: "1px solid #ccc",
                     backgroundColor:
-                      selectedTransport?.zona === "Estero"
+                      trasporti.selected?.zona === "Estero"
                         ? "#dbeafe"
                         : "white",
                   }}
                 />
 
                 <button
-                  onClick={() => locazione("Estero", trasporti.estero)}
+                  onClick={() => locazione("Estero", trasporti.prezzi.estero)}
                   style={{
                     padding: "6px 12px",
                     borderRadius: "6px",
                     border: "1px solid #ccc",
                     cursor: "pointer",
                     backgroundColor:
-                      selectedTransport?.zona === "Estero"
+                      trasporti.selected?.zona === "Estero"
                         ? "#22c55e"
                         : "white",
-                    color:
-                      selectedTransport?.zona === "Estero" ? "white" : "black",
                   }}
                 >
                   Seleziona
@@ -1067,7 +927,9 @@ export default function RecipeBuilder() {
               margin: "12px 0",
             }}
           >
-            <span>Totale costo Lav/Ener/Trasp</span>
+            <strong>
+              <span>Totale costo Lav/Ener/Trasp</span>
+            </strong>
             <strong>€ {totaleCostiAggiuntivi.toFixed(2)}</strong>
           </div>
 
