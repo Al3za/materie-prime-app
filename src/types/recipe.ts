@@ -17,5 +17,8 @@ export interface Recipe {
   costoEnergia: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   trasporto: any;
-  // trasporto: SettingsData;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  imballagio_carta: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  wrap: any;
 }
