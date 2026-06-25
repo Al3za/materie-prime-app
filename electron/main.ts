@@ -121,6 +121,20 @@ ipcMain.handle("save-recipe", async (_, recipe) => {
     recipes = JSON.parse(content);
   }
 
+  // controlla che non esiste gia' una ricetta con nome uguale
+  const recipeExists = recipes.some(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (r: any) =>
+      r.nome.trim().toLowerCase() === recipe.nome.trim().toLowerCase(),
+  );
+
+  if (recipeExists) {
+    return {
+      success: false,
+      error: "Nome ricetta già esistente",
+    };
+  }
+
   // creiamo id personalizzato (R0001, R0002) adattivo in base la lunghezza del file recipes.json
   let nextId = "R0001";
 
@@ -140,7 +154,7 @@ ipcMain.handle("save-recipe", async (_, recipe) => {
 
   console.log("Ricetta salvata");
 
-  return true;
+  return { success: true };
 });
 
 // UPDATE recipe
@@ -168,6 +182,24 @@ ipcMain.handle("update-recipe", async (_, recipeId, updatedRecipe) => {
   console.log("updatedRecipes", updatedRecipes);
   // inseriamo nuovamente nel file .json la ricetta updatata
   fs.writeFileSync(filePath, JSON.stringify(updatedRecipes, null, 2));
+
+  return true;
+});
+
+// Delete
+ipcMain.handle("delete-recipe", async (_, recipeId) => {
+  const filePath = path.join(getDataFolder(), "recipes.json");
+
+  if (!fs.existsSync(filePath)) return false;
+
+  const recipes = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+
+  const filtered = recipes.filter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (r: any) => r.id !== recipeId,
+  );
+
+  fs.writeFileSync(filePath, JSON.stringify(filtered, null, 2));
 
   return true;
 });

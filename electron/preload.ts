@@ -37,4 +37,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateRecipe: (recipeId: any, recipe: any) =>
     ipcRenderer.invoke("update-recipe", recipeId, recipe),
+
+  // Delete
+  deleteRecipe: (recipeId: string) =>
+    ipcRenderer.invoke("delete-recipe", recipeId),
 });

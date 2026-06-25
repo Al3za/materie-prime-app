@@ -45,8 +45,13 @@ type CostOption = {
 interface RecipeContextType {
   materials: Material[]; // type dei dati che andranno ad accumularsi in questo contenitore
   setMaterials: React.Dispatch<React.SetStateAction<Material[]>>; // Type della funzione di react, in modo che Ts non da' error
+
   selectedMaterials: Material[];
   setSelectedMaterials: React.Dispatch<React.SetStateAction<Material[]>>;
+
+  removeMaterial: (cod: string) => void;
+
+  addMaterial: (material: Material) => void;
 
   percentages: Record<string, number>; // per l'input dinamico delle percentuali
 
@@ -147,6 +152,30 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
     load();
   }, []);
 
+  const addMaterial = (material: Material) => {
+    const exists = selectedMaterials.some((m) => m.cod === material.cod);
+
+    if (!exists) {
+      setSelectedMaterials([...selectedMaterials, material]);
+    }
+  };
+
+  const removeMaterial = (cod: string) => {
+    setSelectedMaterials((prev) => prev.filter((m) => m.cod !== cod));
+
+    setPercentages((prev) => {
+      const updated = { ...prev };
+      delete updated[cod];
+      return updated;
+    });
+
+    setKgMaterials((prev) => {
+      const updated = { ...prev };
+      delete updated[cod];
+      return updated;
+    });
+  };
+
   return (
     <RecipeContext.Provider
       value={{
@@ -172,6 +201,8 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
         setEditingRecipeId,
         recipeName,
         setRecipeName,
+        addMaterial,
+        removeMaterial,
       }} // le variabili contenenti i dati dei materiali del file xcell caricato e le percentuali inserite sulle materie selezionate,
       //  che passiamo in tutte le componenti delle app e sono persistenti alla navigazione grazie a RecipeContext.Providerr
     >
