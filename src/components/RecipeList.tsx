@@ -1,8 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Recipe } from "../types/recipe";
+import { useRecipe } from "../context/RecipeContext";
+// import { useNavigate } from "react-router-dom";
 
 export default function RecipeList() {
+  const {
+    setEditingRecipeId,
+    setSelectedMaterials,
+    setPercentages,
+    setKgMaterials,
+    setRecipeMode,
+    setExtraCosts,
+    setTrasporti,
+    setCarta,
+    setWrap,
+    setRecipeName,
+  } = useRecipe();
+
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
@@ -17,6 +32,65 @@ export default function RecipeList() {
     load();
   }, []);
 
+  const updateRecipe = (recipe: any) => {
+    setEditingRecipeId(recipe.id);
+    setRecipeName(recipe.nome);
+    // console.log(recipe.nome);
+    // ripopoliamo il context const con i dati della ricetta da modificare
+    const materials = recipe.items.map((item: any) => ({
+      nome: item.nome,
+      cod: item.cod,
+      descrizione: item.descrizione,
+      prezzoAcquisto: item.prezzoAcquisto,
+    }));
+
+    setSelectedMaterials(materials);
+
+    const restoredPercentages: Record<string, number> = {};
+
+    recipe.items.forEach((item: any) => {
+      restoredPercentages[item.cod] = item.percentuale;
+    });
+
+    setPercentages(restoredPercentages);
+
+    const restoredKg: Record<string, number> = {};
+
+    recipe.items.forEach((item: any) => {
+      restoredKg[item.cod] = item.kg || 0;
+    });
+
+    setKgMaterials(restoredKg);
+
+    setRecipeMode(
+      Object.values(restoredKg).some((kg) => kg > 0) ? "kg" : "percentuale",
+    );
+
+    setExtraCosts({
+      lavorazione: recipe.costoLavorazione || 0,
+
+      energia: recipe.costoEnergia || 0,
+    });
+
+    setTrasporti((prev) => ({
+      ...prev,
+      selected: recipe.trasporto || null,
+    }));
+
+    setCarta((prev) => ({
+      ...prev,
+      selected: recipe.imballagio_carta || null,
+    }));
+
+    setWrap((prev) => ({
+      ...prev,
+      selected: recipe.wrap || null,
+    }));
+
+    // navigiamo in recipeBuilder per aggiungere ulteriori materiali
+    navigate("/recipe"); // recipeBuilder
+  };
+
   return (
     <div>
       <h2>Ricette salvate</h2>
@@ -30,6 +104,15 @@ export default function RecipeList() {
       >
         <thead>
           <tr>
+            <th
+              style={{
+                padding: "12px",
+                borderBottom: "2px solid #ddd",
+                textAlign: "center",
+              }}
+            >
+              Delete
+            </th>
             <th
               style={{
                 padding: "12px",
@@ -69,6 +152,15 @@ export default function RecipeList() {
             >
               Dettagli
             </th>
+            <th
+              style={{
+                padding: "12px",
+                borderBottom: "2px solid #ddd",
+                textAlign: "center",
+              }}
+            >
+              Update
+            </th>
           </tr>
         </thead>
 
@@ -80,6 +172,31 @@ export default function RecipeList() {
                 cursor: "pointer",
               }}
             >
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                  textAlign: "center",
+                }}
+              >
+                <button
+                  onClick={() => "crea delete button"}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#bbf7d0")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#fee2e2")
+                  }
+                >
+                  Delete
+                </button>
+              </td>
+
               <td
                 style={{
                   padding: "12px",
@@ -134,6 +251,31 @@ export default function RecipeList() {
                   }
                 >
                   Apri
+                </button>
+              </td>
+
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                  textAlign: "center",
+                }}
+              >
+                <button
+                  onClick={() => updateRecipe(recipe)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#bbf7d0")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#fee2e2")
+                  }
+                >
+                  update
                 </button>
               </td>
             </tr>

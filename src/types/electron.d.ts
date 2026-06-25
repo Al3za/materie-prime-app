@@ -17,6 +17,8 @@ declare global {
       loadSettings(): Promise<SettingsData>;
 
       saveSettings(trasporti: SettingsData): Promise<boolean>;
+
+      updateRecipe: (recipeId: string, recipe: Recipe) => Promise<boolean>;
     };
   }
 }

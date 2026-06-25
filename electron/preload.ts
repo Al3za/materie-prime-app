@@ -32,4 +32,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // salva i settings (nord, sud, estero)
   loadSettings: () => ipcRenderer.invoke("load-settings"),
+
+  // update recipe
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateRecipe: (recipeId: any, recipe: any) =>
+    ipcRenderer.invoke("update-recipe", recipeId, recipe),
 });

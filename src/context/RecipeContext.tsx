@@ -71,6 +71,13 @@ interface RecipeContextType {
 
   wrap: WrapState;
   setWrap: React.Dispatch<React.SetStateAction<WrapState>>;
+
+  editingRecipeId: string | null;
+
+  setEditingRecipeId: React.Dispatch<React.SetStateAction<string | null>>;
+
+  recipeName: string;
+  setRecipeName: React.Dispatch<React.SetStateAction<string>>;
 }
 
 // il context che va' nel provider
@@ -78,6 +85,9 @@ const RecipeContext = createContext<RecipeContextType | undefined>(undefined);
 
 // children e' l'intera app, wrapped in RecipeProvider nel file main.ts (per poter passare i dati in modo ersistente tra i componenti)
 export function RecipeProvider({ children }: { children: React.ReactNode }) {
+  const [editingRecipeId, setEditingRecipeId] = useState<string | null>(null);
+  const [recipeName, setRecipeName] = useState("");
+
   const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [percentages, setPercentages] = useState<Record<string, number>>({});
@@ -158,6 +168,10 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
         setCarta,
         wrap,
         setWrap,
+        editingRecipeId,
+        setEditingRecipeId,
+        recipeName,
+        setRecipeName,
       }} // le variabili contenenti i dati dei materiali del file xcell caricato e le percentuali inserite sulle materie selezionate,
       //  che passiamo in tutte le componenti delle app e sono persistenti alla navigazione grazie a RecipeContext.Providerr
     >

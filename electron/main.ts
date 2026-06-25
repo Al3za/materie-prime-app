@@ -143,6 +143,35 @@ ipcMain.handle("save-recipe", async (_, recipe) => {
   return true;
 });
 
+// UPDATE recipe
+ipcMain.handle("update-recipe", async (_, recipeId, updatedRecipe) => {
+  const filePath = path.join(getDataFolder(), "recipes.json");
+  console.log("rec id =", recipeId);
+  if (!fs.existsSync(filePath)) {
+    return false;
+  }
+
+  // prendiamo le recette dal file .json
+  const recipes = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+
+  // troviamo la ricetta con l'id passato dal frontend
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updatedRecipes = recipes.map((recipe: any) =>
+    // recipe.id === recipeId ? updatedRecipe : recipe,
+    recipe.id === recipeId
+      ? {
+          ...updatedRecipe,
+          id: recipeId,
+        }
+      : recipe,
+  );
+  console.log("updatedRecipes", updatedRecipes);
+  // inseriamo nuovamente nel file .json la ricetta updatata
+  fs.writeFileSync(filePath, JSON.stringify(updatedRecipes, null, 2));
+
+  return true;
+});
+
 // load all recipes
 ipcMain.handle("load-recipes", async () => {
   try {
