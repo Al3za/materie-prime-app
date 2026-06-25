@@ -24,8 +24,8 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
   const {
     selectedMaterials,
     setSelectedMaterials,
-    setPercentages,
-    setKgMaterials,
+    addMaterial,
+    removeMaterial,
   } = useRecipe();
 
   // quando clicchiamo su qualunque oggetto del record (cod:002, oppore  Zucchero ecc.. l'intero
@@ -39,11 +39,13 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
 
     if (exists) {
       // se abbiamo selezionato erroneamente un record di materie, lo clicchiamo nuovamente e il .filter lo toglie dagli oggetti che abbiamo accumulato in selected
-      setSelectedMaterials(
-        selectedMaterials.filter((m) => m.cod !== material.cod),
-      );
+      // setSelectedMaterials(
+      //   selectedMaterials.filter((m) => m.cod !== material.cod),
+      // );
+      removeMaterial(material.cod);
     } else {
-      setSelectedMaterials([...selectedMaterials, material]); // aggiungi il record cliccato in selected. Con la sintassi ...selected, si accumulano piu' record cliccati, fungendo da accumulatore
+      addMaterial(material);
+      // setSelectedMaterials([...selectedMaterials, material]); // aggiungi il record cliccato in selected. Con la sintassi ...selected, si accumulano piu' record cliccati, fungendo da accumulatore
     }
   };
 

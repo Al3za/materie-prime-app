@@ -35,6 +35,7 @@ export default function RecipeBuilder() {
     setEditingRecipeId,
     recipeName,
     setRecipeName,
+    removeMaterial,
   } = useRecipe();
 
   // const [recipeName, setRecipeName] = useState("");
@@ -106,34 +107,36 @@ export default function RecipeBuilder() {
   const totaleFinale =
     totaleMateriePrime + totaleCostiAggiuntivi + totalePackaging;
 
-  const DeleteSelected = (material: string) => {
-    const exists = selectedMaterials.some((m) => m.cod === material);
-
-    if (!exists) {
-      console.log("id not found, retry");
+  const DeleteSelected = (material_cod: string) => {
+    if (!selectedMaterials.some((m) => m.cod === material_cod)) {
+      toast.error("id not found");
       return;
     }
 
-    // Rimuove dalla lista materiali
-    setSelectedMaterials(selectedMaterials.filter((m) => m.cod !== material));
+    removeMaterial(material_cod);
+    // const exists = selectedMaterials.some((m) => m.cod === material_cod);
 
-    // Rimuove la percentuale associata
-    setPercentages((prev) => {
-      const updated = { ...prev };
+    // if (!exists) {
+    //   toast.error("id not found, retry");
+    //   return;
+    // }
 
-      delete updated[material];
+    // setPercentages((prev) => {
+    //   const updated = { ...prev };
 
-      return updated;
-    });
+    //   delete updated[material];
 
-    // Rimuove i kg associati
-    setKgMaterials((prev) => {
-      const updated = { ...prev };
+    //   return updated;
+    // });
 
-      delete updated[material];
+    // // Rimuove i kg associati
+    // setKgMaterials((prev) => {
+    //   const updated = { ...prev };
 
-      return updated;
-    });
+    //   delete updated[material];
+
+    //   return updated;
+    // });
   };
 
   // pulisci il context on salva ricetta click

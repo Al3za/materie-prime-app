@@ -49,9 +49,9 @@ interface RecipeContextType {
   selectedMaterials: Material[];
   setSelectedMaterials: React.Dispatch<React.SetStateAction<Material[]>>;
 
-  // removeMaterial: (material: Material) => void;
+  removeMaterial: (cod: string) => void;
 
-  // addMaterial: (material: Material) => void;
+  addMaterial: (material: Material) => void;
 
   percentages: Record<string, number>; // per l'input dinamico delle percentuali
 
@@ -152,64 +152,29 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
     load();
   }, []);
 
-  // aggiungi materiali
-  //   const addMaterial = (
-  //   material: Material
-  // ) => {
+  const addMaterial = (material: Material) => {
+    const exists = selectedMaterials.some((m) => m.cod === material.cod);
 
-  //   const exists =
-  //     selectedMaterials.some(
-  //       (m) => m.cod === material.cod
-  //     );
+    if (!exists) {
+      setSelectedMaterials([...selectedMaterials, material]);
+    }
+  };
 
-  //   if (!exists) {
+  const removeMaterial = (cod: string) => {
+    setSelectedMaterials((prev) => prev.filter((m) => m.cod !== cod));
 
-  //     setSelectedMaterials([
-  //       ...selectedMaterials,
-  //       material
-  //     ]);
+    setPercentages((prev) => {
+      const updated = { ...prev };
+      delete updated[cod];
+      return updated;
+    });
 
-  //   }
-  // };
-
-  // // elimina materiali
-
-  // const removeMaterial = (
-  //   material: Material
-  // ) => {
-
-  //   // elimina dalla tabella materiali selezionati
-  //   setSelectedMaterials((prev) =>
-  //     prev.filter(
-  //       (m) => m.cod !== material.cod
-  //     )
-  //   );
-
-  //   // elimina percentuale collegata
-  //   setPercentages((prev) => {
-
-  //     const updated = {
-  //       ...prev
-  //     };
-
-  //     delete updated[material.cod];
-
-  //     return updated;
-  //   });
-
-  //   // elimina kg collegati
-  //   setKgMaterials((prev) => {
-
-  //     const updated = {
-  //       ...prev
-  //     };
-
-  //     delete updated[material.cod];
-
-  //     return updated;
-  //   });
-
-  // };
+    setKgMaterials((prev) => {
+      const updated = { ...prev };
+      delete updated[cod];
+      return updated;
+    });
+  };
 
   return (
     <RecipeContext.Provider
@@ -236,6 +201,8 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
         setEditingRecipeId,
         recipeName,
         setRecipeName,
+        addMaterial,
+        removeMaterial,
       }} // le variabili contenenti i dati dei materiali del file xcell caricato e le percentuali inserite sulle materie selezionate,
       //  che passiamo in tutte le componenti delle app e sono persistenti alla navigazione grazie a RecipeContext.Providerr
     >
