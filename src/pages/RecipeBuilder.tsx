@@ -31,9 +31,13 @@ export default function RecipeBuilder() {
     setCarta,
     wrap,
     setWrap,
+    editingRecipeId,
+    setEditingRecipeId,
+    recipeName,
+    setRecipeName,
   } = useRecipe();
 
-  const [recipeName, setRecipeName] = useState("");
+  // const [recipeName, setRecipeName] = useState("");
 
   // Tiene traccia di locazione e costo scelto
   const locazione = async (zona: string, costo: number) => {
@@ -135,6 +139,7 @@ export default function RecipeBuilder() {
   // pulisci il context on salva ricetta click
   const resetRecipe = () => {
     setSelectedMaterials([]);
+    setRecipeName("");
     setPercentages({});
     setKgMaterials({});
 
@@ -191,7 +196,11 @@ export default function RecipeBuilder() {
 
       return;
     }
-    toast.success(`${recipeName} creata!`);
+
+    toast.success(
+      editingRecipeId ? `${recipeName} Aggiornata!` : `${recipeName} creata!`,
+    );
+    // toast.success();
 
     console.log("save recipe clicked");
 
@@ -212,6 +221,7 @@ export default function RecipeBuilder() {
             : percentages[item.cod] || 0;
 
         return {
+          nome: recipeName,
           cod: item.cod,
           descrizione: item.descrizione,
           prezzoAcquisto: item.prezzoAcquisto,
@@ -228,9 +238,6 @@ export default function RecipeBuilder() {
 
       costoLavorazione: extraCosts.lavorazione,
       costoEnergia: extraCosts.energia,
-      // trasporto: trasporti.selected?.costo,
-      // imballagio_carta: carta.selected?.costo,
-      // wrap: wrap.selected?.costo,
 
       // salviamo i dati dentro l'object selected che ci serviranno per fare la duplica della ricetta
       trasporto: trasporti.selected,
@@ -238,13 +245,28 @@ export default function RecipeBuilder() {
       wrap: wrap.selected,
     };
 
-    const result = await window.electronAPI.saveRecipe(recipe);
-    resetRecipe();
-    navigate("/show_recipes");
-    // setPercentages({});
-    console.log("percentages", percentages);
+    // const result = await window.electronAPI.saveRecipe(recipe);
+    // se la context variabile e' stata popolata (button update in recipe list) allora faremo l'update by id
+    // della ricetta salvata sul recipes.json
+    console.log("editingRecipeId", editingRecipeId);
+    if (editingRecipeId) {
+      await window.electronAPI.updateRecipe(editingRecipeId, recipe);
+      setEditingRecipeId(null);
+      console.log("ricetta aggiornata");
+    } else {
+      await window.electronAPI.saveRecipe(recipe);
 
-    console.log("Ricetta salvata:", result);
+      console.log("ricetta salvata");
+    }
+
+    resetRecipe();
+
+    navigate("/show_recipes");
+
+    // setPercentages({});
+    // console.log("percentages", percentages);
+
+    // console.log("Ricetta salvata:", result);
   };
 
   // Caricamento automatico con i piu' recenti dei settings data (Nord, Sud, Estero) quando si carica la pagina
@@ -1164,7 +1186,7 @@ export default function RecipeBuilder() {
           }
           onClick={handleSaveRecipe}
         >
-          Salva Ricetta
+          {editingRecipeId ? "Aggiorna Ricetta" : "Salva Ricetta"}
         </button>
         <button
           style={{

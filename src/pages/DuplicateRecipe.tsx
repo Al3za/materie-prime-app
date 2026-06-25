@@ -23,7 +23,7 @@ export default function DuplicateRecipe() {
 
   const duplicateRecipe = () => {
     const recipe = recipes.find((r) => r.nome === selectedRecipe);
-    console.log("recipe found", recipe);
+    console.log("recipe duplicate found", recipe);
 
     if (!recipe) return;
     // ricostruisci materiali
