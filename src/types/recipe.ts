@@ -10,6 +10,8 @@ export interface RecipeItem {
 export interface Recipe {
   id?: string;
   nome: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  recipeMode: any;
   createdAt: string;
   items: RecipeItem[];
   totale: number;

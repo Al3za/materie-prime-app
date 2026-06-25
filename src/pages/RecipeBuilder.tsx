@@ -12,11 +12,8 @@ import type { Recipe } from "../types/recipe";
 // import type { Material } from "../types/material";
 
 export default function RecipeBuilder() {
-  // const { state } = useLocation(); // type Materials, (i record che abbiamo scelto da MtrialsTable) (prima di usare context)
-  // const selected = state?.selected || []; // type Materials, (i record che abbiamo scelto da MtrialsTable) (prima di usare context)
   const navigate = useNavigate();
-  // selectedMaterials e dove sono salvati i dati dei
-  // record selezionati
+
   const {
     selectedMaterials,
     setSelectedMaterials,
@@ -159,6 +156,7 @@ export default function RecipeBuilder() {
 
       createdAt: new Date().toISOString(),
 
+      recipeMode,
       items: selectedMaterials.map((item) => {
         const percentualeDaUsare =
           recipeMode === "kg"
@@ -184,11 +182,14 @@ export default function RecipeBuilder() {
 
       costoLavorazione: extraCosts.lavorazione,
       costoEnergia: extraCosts.energia,
-      trasporto: trasporti.selected?.costo,
-      // salviamo imballaggi data
-      // imballagio_carta: carta,
-      imballagio_carta: carta.selected?.costo,
-      wrap: wrap.selected?.costo,
+      // trasporto: trasporti.selected?.costo,
+      // imballagio_carta: carta.selected?.costo,
+      // wrap: wrap.selected?.costo,
+
+      // salviamo i dati dentro l'object selected che ci serviranno per fare la duplica della ricetta
+      trasporto: trasporti.selected,
+      imballagio_carta: carta.selected,
+      wrap: wrap.selected,
     };
 
     const result = await window.electronAPI.saveRecipe(recipe);
@@ -282,6 +283,13 @@ export default function RecipeBuilder() {
       }));
     }
   }
+
+  // const CheckDuplicateRecipe = () => {
+  //   console.log("context Materials :", selectedMaterials);
+  //   console.log("context percentages :", percentages);
+  //   console.log("context kgMaterials :", kgMaterials);
+  //   console.log("context recipeMode :", recipeMode);
+  // };
 
   return (
     <div>
@@ -1130,6 +1138,8 @@ export default function RecipeBuilder() {
           Mostra ricette
         </button>
       </div>
+      {/* <button onClick={CheckDuplicateRecipe}>Test Duplica</button> */}
+      <button onClick={() => navigate("/duplicate")}> duplicate</button>
     </div>
   );
 }

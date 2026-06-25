@@ -9,7 +9,7 @@ export default function Home() {
 
       <button onClick={() => navigate("/create")}>Crea Ricetta</button>
 
-      <button>Duplica Ricetta</button>
+      <button onClick={() => navigate("/duplicate")}>Duplica Ricetta</button>
     </div>
   );
 }
