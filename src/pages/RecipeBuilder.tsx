@@ -308,6 +308,8 @@ export default function RecipeBuilder() {
           display: "flex",
           gap: "10px",
           marginBottom: "25px",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <button
@@ -339,7 +341,7 @@ export default function RecipeBuilder() {
           <strong>Ricetta Kg</strong>
         </button>
       </div>
-      Miscelazione
+      <h2>Miscelazione</h2>
       <table
         style={{
           width: "100%",
@@ -364,7 +366,9 @@ export default function RecipeBuilder() {
             <th>Descrizione</th>
             <th>Prezzo</th>
             {recipeMode === "kg" && <th>Kg</th>}
-            <th>Percentuale</th>
+            <th>{recipeMode === "kg" ? "Percentuale Kg" : "Percentuale"}</th>
+            {/* <th>Percentuale</th> */}
+
             <th>Costo</th>
           </tr>
         </thead>
@@ -372,7 +376,10 @@ export default function RecipeBuilder() {
         <tbody>
           {selectedMaterials.length === 0 && (
             <tr>
-              <td colSpan={6} style={{ padding: "20px", textAlign: "center" }}>
+              <td
+                colSpan={recipeMode === "kg" ? 7 : 6}
+                style={{ padding: "20px", textAlign: "center" }}
+              >
                 Nessun materiale selezionato
               </td>
             </tr>
