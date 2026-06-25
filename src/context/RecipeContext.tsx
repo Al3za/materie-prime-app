@@ -45,8 +45,13 @@ type CostOption = {
 interface RecipeContextType {
   materials: Material[]; // type dei dati che andranno ad accumularsi in questo contenitore
   setMaterials: React.Dispatch<React.SetStateAction<Material[]>>; // Type della funzione di react, in modo che Ts non da' error
+
   selectedMaterials: Material[];
   setSelectedMaterials: React.Dispatch<React.SetStateAction<Material[]>>;
+
+  // removeMaterial: (material: Material) => void;
+
+  // addMaterial: (material: Material) => void;
 
   percentages: Record<string, number>; // per l'input dinamico delle percentuali
 
@@ -146,6 +151,65 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
 
     load();
   }, []);
+
+  // aggiungi materiali
+  //   const addMaterial = (
+  //   material: Material
+  // ) => {
+
+  //   const exists =
+  //     selectedMaterials.some(
+  //       (m) => m.cod === material.cod
+  //     );
+
+  //   if (!exists) {
+
+  //     setSelectedMaterials([
+  //       ...selectedMaterials,
+  //       material
+  //     ]);
+
+  //   }
+  // };
+
+  // // elimina materiali
+
+  // const removeMaterial = (
+  //   material: Material
+  // ) => {
+
+  //   // elimina dalla tabella materiali selezionati
+  //   setSelectedMaterials((prev) =>
+  //     prev.filter(
+  //       (m) => m.cod !== material.cod
+  //     )
+  //   );
+
+  //   // elimina percentuale collegata
+  //   setPercentages((prev) => {
+
+  //     const updated = {
+  //       ...prev
+  //     };
+
+  //     delete updated[material.cod];
+
+  //     return updated;
+  //   });
+
+  //   // elimina kg collegati
+  //   setKgMaterials((prev) => {
+
+  //     const updated = {
+  //       ...prev
+  //     };
+
+  //     delete updated[material.cod];
+
+  //     return updated;
+  //   });
+
+  // };
 
   return (
     <RecipeContext.Provider

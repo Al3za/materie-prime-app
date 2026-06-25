@@ -2,6 +2,10 @@ import type { Material } from "./material";
 import type { Recipe } from "./recipe";
 import type { SettingsData } from "./settings";
 export {};
+interface SaveRecipeResult {
+  success: boolean;
+  error?: string;
+}
 
 declare global {
   interface Window {
@@ -10,7 +14,7 @@ declare global {
 
       saveMaterials: (materials: Material[]) => Promise<boolean>;
 
-      saveRecipe: (recipe: Recipe) => Promise<boolean>;
+      saveRecipe: (recipe: Recipe) => Promise<SaveRecipeResult>;
 
       loadRecipes(): Promise<Recipe[]>;
 
@@ -19,6 +23,8 @@ declare global {
       saveSettings(trasporti: SettingsData): Promise<boolean>;
 
       updateRecipe: (recipeId: string, recipe: Recipe) => Promise<boolean>;
+
+      deleteRecipe: (recipeId: string) => Promise<boolean>;
     };
   }
 }

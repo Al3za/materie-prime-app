@@ -21,7 +21,7 @@ export default function RecipeList() {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
-  useEffect(() => {
+  const loadRecipes = () => {
     const load = async () => {
       const data = await window.electronAPI.loadRecipes();
       console.log();
@@ -30,6 +30,10 @@ export default function RecipeList() {
     };
 
     load();
+  };
+
+  useEffect(() => {
+    loadRecipes();
   }, []);
 
   const updateRecipe = (recipe: any) => {
@@ -89,6 +93,13 @@ export default function RecipeList() {
 
     // navigiamo in recipeBuilder per aggiungere ulteriori materiali
     navigate("/recipe"); // recipeBuilder
+  };
+
+  // delete
+  const handleDelete = async (recipeId: string) => {
+    await window.electronAPI.deleteRecipe(recipeId);
+
+    loadRecipes();
   };
 
   return (
@@ -180,7 +191,7 @@ export default function RecipeList() {
                 }}
               >
                 <button
-                  onClick={() => "crea delete button"}
+                  onClick={() => handleDelete(recipe.id ? recipe.id : "")}
                   style={{
                     padding: "6px 12px",
                     borderRadius: "6px",

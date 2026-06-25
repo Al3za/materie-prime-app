@@ -197,9 +197,9 @@ export default function RecipeBuilder() {
       return;
     }
 
-    toast.success(
-      editingRecipeId ? `${recipeName} Aggiornata!` : `${recipeName} creata!`,
-    );
+    // toast.success(
+    //   editingRecipeId ? `${recipeName} Aggiornata!` : `${recipeName} creata!`,
+    // );
     // toast.success();
 
     console.log("save recipe clicked");
@@ -221,7 +221,6 @@ export default function RecipeBuilder() {
             : percentages[item.cod] || 0;
 
         return {
-          nome: recipeName,
           cod: item.cod,
           descrizione: item.descrizione,
           prezzoAcquisto: item.prezzoAcquisto,
@@ -252,10 +251,17 @@ export default function RecipeBuilder() {
     if (editingRecipeId) {
       await window.electronAPI.updateRecipe(editingRecipeId, recipe);
       setEditingRecipeId(null);
+
+      toast.success(`${recipeName} Aggiornata!`);
       console.log("ricetta aggiornata");
     } else {
-      await window.electronAPI.saveRecipe(recipe);
-
+      const result = await window.electronAPI.saveRecipe(recipe);
+      if (!result.success) {
+        toast.error(result.error ? result.error : "");
+        console.log(result.error); // "Nome ricetta già esistente", (dal main)
+        return;
+      }
+      toast.success(`${recipeName} creata!`);
       console.log("ricetta salvata");
     }
 
@@ -355,13 +361,6 @@ export default function RecipeBuilder() {
       }));
     }
   }
-
-  // const CheckDuplicateRecipe = () => {
-  //   console.log("context Materials :", selectedMaterials);
-  //   console.log("context percentages :", percentages);
-  //   console.log("context kgMaterials :", kgMaterials);
-  //   console.log("context recipeMode :", recipeMode);
-  // };
 
   return (
     <div>

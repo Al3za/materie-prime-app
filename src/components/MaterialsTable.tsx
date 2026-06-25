@@ -21,7 +21,12 @@ interface MaterialsTableProps {
 export default function MaterialsTable({ materials }: MaterialsTableProps) {
   // const [selected, setSelected] = useState<Material[]>([]);
 
-  const { selectedMaterials, setSelectedMaterials } = useRecipe();
+  const {
+    selectedMaterials,
+    setSelectedMaterials,
+    setPercentages,
+    setKgMaterials,
+  } = useRecipe();
 
   // quando clicchiamo su qualunque oggetto del record (cod:002, oppore  Zucchero ecc.. l'intero
   //  oggetto (record) viene salvato dentro la variabile
