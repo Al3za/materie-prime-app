@@ -14,6 +14,11 @@ export default function DuplicateRecipe() {
     setPercentages,
     setKgMaterials,
     setRecipeMode,
+
+    setExtraCosts,
+    setTrasporti,
+    setCarta,
+    setWrap,
   } = useRecipe();
 
   const duplicateRecipe = () => {
@@ -51,6 +56,31 @@ export default function DuplicateRecipe() {
     setRecipeMode(
       Object.values(restoredKg).some((kg) => kg > 0) ? "kg" : "percentuale",
     );
+
+    // costi lavorazione e trasporti
+    setExtraCosts({
+      lavorazione: recipe.costoLavorazione || 0,
+      energia: recipe.costoEnergia || 0,
+    });
+
+    setTrasporti((prev) => ({
+      ...prev,
+      selected: recipe.trasporto || null,
+    }));
+
+    // carta
+    setCarta((prev) => ({
+      ...prev,
+      selected: recipe.imballagio_carta || null,
+    }));
+
+    // wrap
+    setWrap((prev) => ({
+      ...prev,
+      selected: recipe.wrap || null,
+    }));
+
+    console.log("Ricetta caricata", recipe);
   };
 
   useEffect(() => {

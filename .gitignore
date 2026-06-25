@@ -12,9 +12,21 @@ dist
 dist-ssr
 *.local
 
+# Electron build output
+dist/
+release/
+out/
+
+# Electron Builder artifacts
+*.exe
+*.msi
+*.dmg
+*.AppImage
+
 # src folders
 /release
 data/
+dist-electron/
 
 # Editor directories and files
 .vscode/*

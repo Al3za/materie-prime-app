@@ -86,6 +86,8 @@ export default function RecipeBuilder() {
     0,
   );
 
+  // console.log(totalePercentuali);
+
   // somma dei costi aggiuntivi, (costo lav, costo energia gas, costo trasporto)
   const totaleCostiAggiuntivi =
     extraCosts.lavorazione +
@@ -130,8 +132,52 @@ export default function RecipeBuilder() {
     });
   };
 
+  // pulisci il context on salva ricetta click
+  const resetRecipe = () => {
+    setSelectedMaterials([]);
+    setPercentages({});
+    setKgMaterials({});
+
+    setExtraCosts({
+      lavorazione: 0,
+      energia: 0,
+    });
+
+    setTrasporti({
+      prezzi: {
+        nord: 100,
+        sud: 50,
+        estero: 200,
+      },
+      selected: null,
+    });
+
+    setCarta({
+      formato: {
+        "1000": 100,
+        "500": 50,
+        "250": 25,
+        "200": 20,
+      },
+      selected: null,
+    });
+
+    setWrap({
+      options: {
+        "valigetta 2x6 opaco bianco": 15,
+        "valigetta 3x4 opaco nero": 20,
+        "valigetta 3x8 opaco verde": 30,
+      },
+      selected: null,
+    });
+
+    setRecipeMode("percentuale");
+  };
+
   // FUNZIONE SALVATAGGIO RICETTA
   const handleSaveRecipe = async () => {
+    console.log("percentages", percentages);
+    console.log(totalePercentuali);
     if (totalePercentuali > 100) {
       toast.error("La somma delle percentuali supera il 100%");
       // setMessage("La somma delle percentuali supera il 100%");
@@ -193,6 +239,10 @@ export default function RecipeBuilder() {
     };
 
     const result = await window.electronAPI.saveRecipe(recipe);
+    resetRecipe();
+    navigate("/show_recipes");
+    // setPercentages({});
+    console.log("percentages", percentages);
 
     console.log("Ricetta salvata:", result);
   };
