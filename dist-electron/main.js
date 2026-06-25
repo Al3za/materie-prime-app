@@ -35,9 +35,6 @@ function ensureDataFolder() {
         // { recursive: true } crea il percorso definito in datafolder, perche a volte node cerca di creare il folder data su una path che e' piu' corto dell originale, con / in meno
     }
 }
-// if (!fs.existsSync(dataFolder)) {
-//   fs.mkdirSync(dataFolder, { recursive: true });
-// }
 // function createWindow =  descrizioni della pagina che mostrano il layout dell'app:
 function createWindow() {
     const win = new electron_1.BrowserWindow({
@@ -117,12 +114,19 @@ electron_1.ipcMain.handle("save-recipe", async (_, recipe) => {
 });
 // load all recipes
 electron_1.ipcMain.handle("load-recipes", async () => {
-    const filePath = path_1.default.join(getDataFolder(), "recipes.json");
-    if (!fs_1.default.existsSync(filePath)) {
+    try {
+        const filePath = path_1.default.join(getDataFolder(), "recipes.json");
+        if (!fs_1.default.existsSync(filePath)) {
+            return [];
+        }
+        const content = fs_1.default.readFileSync(filePath, "utf-8");
+        return JSON.parse(content);
+    }
+    catch (error) {
+        // aggiunti recentemente try catch. Eliminali se danno problemi
+        console.error("Errore load-recipes:", error);
         return [];
     }
-    const content = fs_1.default.readFileSync(filePath, "utf-8");
-    return JSON.parse(content);
 });
 // Save settings data (nord, sud, estero)
 electron_1.ipcMain.handle("save-settings", async (_, settings) => {

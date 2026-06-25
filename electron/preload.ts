@@ -22,7 +22,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveRecipe: (recipe: any[]) => ipcRenderer.invoke("save-recipe", recipe),
 
-  // mostra le ricette
+  // mostra le ricette IPC comunication between renderer, main and frontend
   loadRecipes: () => ipcRenderer.invoke("load-recipes"),
 
   // mostra i settings (nord, sud, estero)

@@ -35,10 +35,6 @@ function ensureDataFolder() {
   }
 }
 
-// if (!fs.existsSync(dataFolder)) {
-//   fs.mkdirSync(dataFolder, { recursive: true });
-// }
-
 // function createWindow =  descrizioni della pagina che mostrano il layout dell'app:
 function createWindow() {
   const win = new BrowserWindow({
@@ -149,15 +145,21 @@ ipcMain.handle("save-recipe", async (_, recipe) => {
 
 // load all recipes
 ipcMain.handle("load-recipes", async () => {
-  const filePath = path.join(getDataFolder(), "recipes.json");
+  try {
+    const filePath = path.join(getDataFolder(), "recipes.json");
 
-  if (!fs.existsSync(filePath)) {
+    if (!fs.existsSync(filePath)) {
+      return [];
+    }
+
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    return JSON.parse(content);
+  } catch (error) {
+    // aggiunti recentemente try catch. Eliminali se danno problemi
+    console.error("Errore load-recipes:", error);
     return [];
   }
-
-  const content = fs.readFileSync(filePath, "utf-8");
-
-  return JSON.parse(content);
 });
 
 // Save settings data (nord, sud, estero)
