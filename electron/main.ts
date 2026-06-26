@@ -67,6 +67,7 @@ function createWindow() {
 app.whenReady().then(() => {
   ensureDataFolder();
   console.log("opening folder...");
+  // console.log("UserData path data:", app.getPath("userData"));
   createWindow(); // apre la inestra
 
   app.on("activate", () => {
@@ -84,7 +85,8 @@ app.on("window-all-closed", () => {
 
 // Funzione saveMaterials (in file locale)
 ipcMain.handle("save-materials", async (_, materials) => {
-  // const filePath = path.join(dataFolder, "materials.json");
+  // Assicura che il data folder/ esista prima di scrivere
+  ensureDataFolder();
   const filePath = path.join(getDataFolder(), "materials.json");
 
   fs.writeFileSync(filePath, JSON.stringify(materials, null, 2), "utf-8");
@@ -96,7 +98,8 @@ ipcMain.handle("save-materials", async (_, materials) => {
 
 // Funzione load-materials (Da file locale)
 ipcMain.handle("load-materials", async () => {
-  // const filePath = path.join(dataFolder, "materials.json"); // dove sono salvati i dati in .json quando abbiamo caricato il file excell
+  // Assicura che il data folder/ esista prima di scrivere
+  ensureDataFolder();
   const filePath = path.join(getDataFolder(), "materials.json"); // dove sono salvati i dati in .json quando abbiamo caricato il file excell
   console.log("func hit");
   if (!fs.existsSync(filePath)) {
@@ -111,6 +114,8 @@ ipcMain.handle("load-materials", async () => {
 // funzione Salva ricetta (In file locale) (ricorda di aggiungere una funzione che ti avverte se la ricetta ha lo stesso nome di un altra. poi magari fai scegliere se sovrascrivere. poi possiamo anche inserire il delete recept)
 ipcMain.handle("save-recipe", async (_, recipe) => {
   // in _, recipe c'e l'object con i dati della ricetta
+  // Assicura che il data folder/ esista prima di scrivere
+  ensureDataFolder();
   const filePath = path.join(getDataFolder(), "recipes.json");
 
   let recipes = [];
@@ -159,6 +164,8 @@ ipcMain.handle("save-recipe", async (_, recipe) => {
 
 // UPDATE recipe
 ipcMain.handle("update-recipe", async (_, recipeId, updatedRecipe) => {
+  // Assicura che il data folder/ esista prima di scrivere
+  ensureDataFolder();
   const filePath = path.join(getDataFolder(), "recipes.json");
   console.log("rec id =", recipeId);
   if (!fs.existsSync(filePath)) {
@@ -188,6 +195,8 @@ ipcMain.handle("update-recipe", async (_, recipeId, updatedRecipe) => {
 
 // Delete
 ipcMain.handle("delete-recipe", async (_, recipeId) => {
+  // Assicura che il data folder/ esista prima di scrivere
+  ensureDataFolder();
   const filePath = path.join(getDataFolder(), "recipes.json");
 
   if (!fs.existsSync(filePath)) return false;
@@ -206,6 +215,8 @@ ipcMain.handle("delete-recipe", async (_, recipeId) => {
 
 // load all recipes
 ipcMain.handle("load-recipes", async () => {
+  // Assicura che il data folder/ esista prima di scrivere
+  ensureDataFolder();
   try {
     const filePath = path.join(getDataFolder(), "recipes.json");
 
@@ -225,6 +236,8 @@ ipcMain.handle("load-recipes", async () => {
 
 // Save settings data (nord, sud, estero)
 ipcMain.handle("save-settings", async (_, settings) => {
+  // Assicura che il data folder/ esista prima di scrivere
+  ensureDataFolder();
   const filePath = path.join(getDataFolder(), "settings.json");
 
   fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), "utf-8");
@@ -234,8 +247,10 @@ ipcMain.handle("save-settings", async (_, settings) => {
   return true;
 });
 
-// load settings data (nord, sud, estero)
+// load settings data (nord, sud, estero) // not used anymore
 ipcMain.handle("load-settings", async () => {
+  // Assicura che il data folder/ esista prima di scrivere
+  ensureDataFolder();
   const filePath = path.join(getDataFolder(), "settings.json");
 
   if (!fs.existsSync(filePath)) {
