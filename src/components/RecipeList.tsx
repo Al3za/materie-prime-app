@@ -21,6 +21,85 @@ export default function RecipeList() {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
+  const loadRecipeIntoBuilder = (recipe: any) => {
+    // RIPOPOLIAMO I DATI CONTEXT CON GLI STESSI DATI DELLA DUPLICA O UPDATE DELLA RICETTA
+
+    // materiali
+    const materials = recipe.items.map((item: any) => ({
+      cod: item.cod,
+      descrizione: item.descrizione,
+      prezzoAcquisto: item.prezzoAcquisto,
+    }));
+
+    setSelectedMaterials(materials);
+
+    // Percentuali
+    const restoredPercentages: Record<string, number> = {};
+
+    recipe.items.forEach((item: any) => {
+      restoredPercentages[item.cod] = item.percentuale;
+    });
+
+    setPercentages(restoredPercentages);
+
+    // KG
+    const restoredKg: Record<string, number> = {};
+
+    recipe.items.forEach((item: any) => {
+      restoredKg[item.cod] = item.kg || 0;
+    });
+
+    setKgMaterials(restoredKg);
+
+    //Modalità
+    setRecipeMode(
+      Object.values(restoredKg).some((kg) => kg > 0) ? "kg" : "percentuale",
+    );
+
+    // Costi
+    setExtraCosts({
+      lavorazione: recipe.costoLavorazione || 0,
+
+      energia: recipe.costoEnergia || 0,
+    });
+
+    // Trasporto
+    setTrasporti((prev) => ({
+      ...prev,
+
+      selected: recipe.trasporto
+        ? {
+            zona: recipe.trasporto.zona,
+            costo: recipe.trasporto.costo,
+          }
+        : null,
+    }));
+
+    // Carta
+    setCarta((prev) => ({
+      ...prev,
+
+      selected: recipe.imballagio_carta
+        ? {
+            formato_carta: recipe.imballagio_carta.formato_carta,
+            costo: recipe.imballagio_carta.costo,
+          }
+        : null,
+    }));
+
+    // Wrap
+    setWrap((prev) => ({
+      ...prev,
+
+      selected: recipe.wrap
+        ? {
+            formato_Wrap: recipe.wrap.formato_Wrap,
+            costo: recipe.wrap.costo,
+          }
+        : null,
+    }));
+  };
+
   const loadRecipes = () => {
     const load = async () => {
       const data = await window.electronAPI.loadRecipes();
@@ -36,63 +115,76 @@ export default function RecipeList() {
     loadRecipes();
   }, []);
 
-  const updateRecipe = (recipe: any) => {
-    setEditingRecipeId(recipe.id);
-    setRecipeName(recipe.nome);
-    // console.log(recipe.nome);
-    // ripopoliamo il context const con i dati della ricetta da modificare
-    const materials = recipe.items.map((item: any) => ({
-      nome: item.nome,
-      cod: item.cod,
-      descrizione: item.descrizione,
-      prezzoAcquisto: item.prezzoAcquisto,
-    }));
+  // const updateRecipe = (recipe: any) => {
+  //   setEditingRecipeId(recipe.id);
+  //   setRecipeName(recipe.nome);
+  //   // console.log(recipe.nome);
+  //   // ripopoliamo il context const con i dati della ricetta da modificare
+  //   const materials = recipe.items.map((item: any) => ({
+  //     cod: item.cod,
+  //     descrizione: item.descrizione,
+  //     prezzoAcquisto: item.prezzoAcquisto,
+  //   }));
 
-    setSelectedMaterials(materials);
+  //   setSelectedMaterials(materials);
 
-    const restoredPercentages: Record<string, number> = {};
+  //   const restoredPercentages: Record<string, number> = {};
 
-    recipe.items.forEach((item: any) => {
-      restoredPercentages[item.cod] = item.percentuale;
-    });
+  //   recipe.items.forEach((item: any) => {
+  //     restoredPercentages[item.cod] = item.percentuale;
+  //   });
 
-    setPercentages(restoredPercentages);
+  //   setPercentages(restoredPercentages);
 
-    const restoredKg: Record<string, number> = {};
+  //   const restoredKg: Record<string, number> = {};
 
-    recipe.items.forEach((item: any) => {
-      restoredKg[item.cod] = item.kg || 0;
-    });
+  //   recipe.items.forEach((item: any) => {
+  //     restoredKg[item.cod] = item.kg || 0;
+  //   });
 
-    setKgMaterials(restoredKg);
+  //   setKgMaterials(restoredKg);
 
-    setRecipeMode(
-      Object.values(restoredKg).some((kg) => kg > 0) ? "kg" : "percentuale",
-    );
+  //   setRecipeMode(
+  //     Object.values(restoredKg).some((kg) => kg > 0) ? "kg" : "percentuale",
+  //   );
 
-    setExtraCosts({
-      lavorazione: recipe.costoLavorazione || 0,
+  //   setExtraCosts({
+  //     lavorazione: recipe.costoLavorazione || 0,
 
-      energia: recipe.costoEnergia || 0,
-    });
+  //     energia: recipe.costoEnergia || 0,
+  //   });
 
-    setTrasporti((prev) => ({
-      ...prev,
-      selected: recipe.trasporto || null,
-    }));
+  //   setTrasporti((prev) => ({
+  //     ...prev,
+  //     selected: recipe.trasporto || null,
+  //   }));
 
-    setCarta((prev) => ({
-      ...prev,
-      selected: recipe.imballagio_carta || null,
-    }));
+  //   setCarta((prev) => ({
+  //     ...prev,
+  //     selected: recipe.imballagio_carta || null,
+  //   }));
 
-    setWrap((prev) => ({
-      ...prev,
-      selected: recipe.wrap || null,
-    }));
+  //   setWrap((prev) => ({
+  //     ...prev,
+  //     selected: recipe.wrap || null,
+  //   }));
 
-    // navigiamo in recipeBuilder per aggiungere ulteriori materiali
-    navigate("/recipe"); // recipeBuilder
+  //   // navigiamo in recipeBuilder per aggiungere ulteriori materiali
+  //   navigate("/recipe"); // recipeBuilder
+  // };
+
+  const openRecipeBuilder = (recipe: any, mode: "update" | "duplicate") => {
+    loadRecipeIntoBuilder(recipe);
+
+    if (mode === "update") {
+      setEditingRecipeId(recipe.id);
+      setRecipeName(recipe.nome);
+    } else {
+      setEditingRecipeId(null);
+      // setRecipeName(`${recipe.nome} copia`);
+    }
+
+    navigate("/recipe");
   };
 
   // delete
@@ -171,6 +263,15 @@ export default function RecipeList() {
               }}
             >
               Update
+            </th>
+            <th
+              style={{
+                padding: "12px",
+                borderBottom: "2px solid #ddd",
+                textAlign: "center",
+              }}
+            >
+              Duplicate
             </th>
           </tr>
         </thead>
@@ -273,7 +374,7 @@ export default function RecipeList() {
                 }}
               >
                 <button
-                  onClick={() => updateRecipe(recipe)}
+                  onClick={() => openRecipeBuilder(recipe, "update")}
                   style={{
                     padding: "6px 12px",
                     borderRadius: "6px",
@@ -287,6 +388,30 @@ export default function RecipeList() {
                   }
                 >
                   update
+                </button>
+              </td>
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #eee",
+                  textAlign: "center",
+                }}
+              >
+                <button
+                  onClick={() => openRecipeBuilder(recipe, "duplicate")}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#bbf7d0")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#fee2e2")
+                  }
+                >
+                  Duplicate
                 </button>
               </td>
             </tr>
@@ -308,6 +433,7 @@ export default function RecipeList() {
         onMouseLeave={(e) =>
           (e.currentTarget.style.backgroundColor = " #FFFFFF")
         }
+        // onClick={() => navigate("/recipe")}
         onClick={() => navigate("/recipe")}
       >
         ➕ Crea Ricetta

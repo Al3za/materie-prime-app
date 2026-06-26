@@ -114,29 +114,6 @@ export default function RecipeBuilder() {
     }
 
     removeMaterial(material_cod);
-    // const exists = selectedMaterials.some((m) => m.cod === material_cod);
-
-    // if (!exists) {
-    //   toast.error("id not found, retry");
-    //   return;
-    // }
-
-    // setPercentages((prev) => {
-    //   const updated = { ...prev };
-
-    //   delete updated[material];
-
-    //   return updated;
-    // });
-
-    // // Rimuove i kg associati
-    // setKgMaterials((prev) => {
-    //   const updated = { ...prev };
-
-    //   delete updated[material];
-
-    //   return updated;
-    // });
   };
 
   // pulisci il context on salva ricetta click
@@ -209,7 +186,6 @@ export default function RecipeBuilder() {
 
     const recipe: Recipe = {
       // id: // l'id si crea nel server electron
-      // mode: recipeMode? "kg":"percentuale",
       nome: recipeName,
 
       createdAt: new Date().toISOString(),
@@ -236,7 +212,7 @@ export default function RecipeBuilder() {
         };
       }),
 
-      totale: Number(totaleMateriePrime.toFixed(2)),
+      totale: Number(totaleFinale.toFixed(2)),
 
       costoLavorazione: extraCosts.lavorazione,
       costoEnergia: extraCosts.energia,
@@ -250,32 +226,23 @@ export default function RecipeBuilder() {
     // const result = await window.electronAPI.saveRecipe(recipe);
     // se la context variabile e' stata popolata (button update in recipe list) allora faremo l'update by id
     // della ricetta salvata sul recipes.json
-    console.log("editingRecipeId", editingRecipeId);
+
     if (editingRecipeId) {
       await window.electronAPI.updateRecipe(editingRecipeId, recipe);
       setEditingRecipeId(null);
-
       toast.success(`${recipeName} Aggiornata!`);
-      console.log("ricetta aggiornata");
     } else {
       const result = await window.electronAPI.saveRecipe(recipe);
       if (!result.success) {
         toast.error(result.error ? result.error : "");
-        console.log(result.error); // "Nome ricetta già esistente", (dal main)
         return;
       }
       toast.success(`${recipeName} creata!`);
-      console.log("ricetta salvata");
     }
 
     resetRecipe();
 
     navigate("/show_recipes");
-
-    // setPercentages({});
-    // console.log("percentages", percentages);
-
-    // console.log("Ricetta salvata:", result);
   };
 
   // Caricamento automatico con i piu' recenti dei settings data (Nord, Sud, Estero) quando si carica la pagina
@@ -300,16 +267,10 @@ export default function RecipeBuilder() {
         [zona]: costo,
       },
     }));
-
-    // da eliminare perche non serve. I dati si devono inserire manualmente e non persistere
-    // alla chiusura app
-    // window.electronAPI.saveSettings({
-    //   trasporti: updated,
-    // });
   };
 
   const [showTrasporti, setShowTrasporti] = useState<boolean>(false);
-  const [showCarta, setShowCarta] = useState<boolean>(false);
+  const [showCarta, setShowCarta] = useState<boolean>(true);
   const [showWrap, setShowWrap] = useState<boolean>(false);
 
   // context persistent
@@ -604,7 +565,7 @@ export default function RecipeBuilder() {
                     fontWeight: 600,
                   }}
                 >
-                  {costoRiga}€
+                  {costoRiga.toFixed(2)}€
                 </td>
               </tr>
             );
@@ -1165,7 +1126,7 @@ export default function RecipeBuilder() {
           onMouseLeave={(e) =>
             (e.currentTarget.style.backgroundColor = "#fef3c7")
           }
-          onClick={() => navigate("/create")}
+          onClick={() => navigate("/")}
         >
           Aggiungi a Ricetta
         </button>
@@ -1213,7 +1174,7 @@ export default function RecipeBuilder() {
         </button>
       </div>
       {/* <button onClick={CheckDuplicateRecipe}>Test Duplica</button> */}
-      <button onClick={() => navigate("/duplicate")}> duplicate</button>
+      {/* <button onClick={() => navigate("/duplicate")}> duplicate</button> */}
     </div>
   );
 }
