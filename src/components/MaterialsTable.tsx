@@ -23,7 +23,7 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
 
   const {
     selectedMaterials,
-    setSelectedMaterials,
+    // setSelectedMaterials,
     addMaterial,
     removeMaterial,
   } = useRecipe();
