@@ -41,4 +41,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Delete
   deleteRecipe: (recipeId: string) =>
     ipcRenderer.invoke("delete-recipe", recipeId),
+
+  // Salva valigette
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  saveWrap: (wraps: any) => ipcRenderer.invoke("save-wrap", wraps),
+
+  // load valigette
+  loadWrap: () => ipcRenderer.invoke("load-wrap"),
 });

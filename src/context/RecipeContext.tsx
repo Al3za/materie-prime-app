@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 import type { Material } from "../types/material";
+import type { Wrap } from "../types/wrap";
 
 type TransportState = {
   prezzi: {
@@ -21,9 +22,14 @@ type CartaState = {
   selected: CostOption | null;
 };
 
+// type WrapState = {
+//   options: Record<string, number>;
+//   selected: CostOption | null;
+// };
+
 type WrapState = {
-  options: Record<string, number>;
-  selected: CostOption | null;
+  options: Wrap[];
+  selected: Wrap | null;
 };
 
 type ExtraCostsState = {
@@ -126,13 +132,18 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
 
   // Formato e prezzo di default (cambiabile) wrap. Se  il cliente vorra' modificarli in futuro, allora converrà spostarli in settings.json
   // come avevamo fatto per trasporti e packaging.
+  // const [wrap, setWrap] = useState<WrapState>({
+  //   options: {
+  //     "valigetta 2x6 opaco bianco": 15,
+  //     "valigetta 3x4 opaco nero": 20,
+  //     "valigetta 3x8 opaco verde": 30,
+  //   },
+  //   selected: null as CostOption | null,
+  // });
+
   const [wrap, setWrap] = useState<WrapState>({
-    options: {
-      "valigetta 2x6 opaco bianco": 15,
-      "valigetta 3x4 opaco nero": 20,
-      "valigetta 3x8 opaco verde": 30,
-    },
-    selected: null as CostOption | null,
+    options: [],
+    selected: null,
   });
 
   // serve per inserire il file.json caricato e passarlo nelle var context in tutta l'app
@@ -143,9 +154,19 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
       // file che abbiamo salvato in locale durante l'upload del file excell. Se  il json file esiste usiamo quello
       // altrimenti si deve caricare un nuovo file (questo serve a fare in modo che lo user carichi il file excell solo 1 volta)
       const savedMaterials = await window.electronAPI.loadMaterials();
+      const saved = await window.electronAPI.loadWrap();
 
+      // Materials
       if (savedMaterials.length > 0) {
         setMaterials(savedMaterials);
+      }
+
+      // Wraps
+      if (saved.length > 0) {
+        setWrap({
+          options: saved,
+          selected: null,
+        });
       }
     };
 

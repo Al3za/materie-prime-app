@@ -1,6 +1,7 @@
 import type { Material } from "./material";
 import type { Recipe } from "./recipe";
 import type { SettingsData } from "./settings";
+import type { Wrap } from "./wrap";
 export {};
 interface SaveRecipeResult {
   success: boolean;
@@ -25,6 +26,10 @@ declare global {
       updateRecipe: (recipeId: string, recipe: Recipe) => Promise<boolean>;
 
       deleteRecipe: (recipeId: string) => Promise<boolean>;
+
+      saveWrap: (wraps: Wrap[]) => Promise<boolean>;
+
+      loadWrap: () => Promise<Wrap[]>;
     };
   }
 }

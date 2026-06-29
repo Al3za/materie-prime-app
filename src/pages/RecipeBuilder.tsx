@@ -8,6 +8,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 // import type { Material } from "../types/material";
 import type { Recipe } from "../types/recipe";
+import { parseWrapExcel } from "../lib/parseWraps";
+import type { Wrap } from "../types/wrap";
 // import type { TrasportiData } from "../types/settings";
 // record selezionati
 // import type { Material } from "../types/material";
@@ -123,6 +125,7 @@ export default function RecipeBuilder() {
     setRecipeName("");
     setPercentages({});
     setKgMaterials({});
+    setWrap({ options: [], selected: null });
 
     setExtraCosts({
       lavorazione: 0,
@@ -148,15 +151,6 @@ export default function RecipeBuilder() {
       selected: null,
     });
 
-    setWrap({
-      options: {
-        "valigetta 2x6 opaco bianco": 15,
-        "valigetta 3x4 opaco nero": 20,
-        "valigetta 3x8 opaco verde": 30,
-      },
-      selected: null,
-    });
-
     setRecipeMode("percentuale");
   };
 
@@ -164,8 +158,9 @@ export default function RecipeBuilder() {
   const handleSaveRecipe = async () => {
     console.log("percentages", percentages);
     console.log(totalePercentuali);
-    if (totalePercentuali > 100) {
-      toast.error("La somma delle percentuali supera il 100%");
+    if (totalePercentuali != 100) {
+      // toast.error("La somma delle percentuali supera il 100%");
+      toast.error("La somma delle percentuali deve essere 100%");
       // setMessage("La somma delle percentuali supera il 100%");
       return;
     }
@@ -306,26 +301,60 @@ export default function RecipeBuilder() {
     }
   }
 
-  function Handle_Wrap(formato_wrap: string, costo: number): void {
-    const exist = wrap.selected?.formato_Wrap == formato_wrap;
+  // interroga chat
+  // function Handle_Wrap(formato_wrap: string, costo: number): void {
+  //   const exist = wrap.selected?.formato_Wrap == formato_wrap;
 
-    if (exist) {
+  //   if (exist) {
+  //     setWrap((prev) => ({
+  //       ...prev,
+  //       selected: {
+  //         formato_Wrap: "",
+  //       },
+  //     }));
+  //   } else {
+  //     setWrap((prev) => ({
+  //       ...prev,
+  //       selected: {
+  //         formato_Wrap: formato_wrap,
+  //         costo,
+  //       },
+  //     }));
+  //   }
+  // }
+
+  function Handle_Wrap(item: Wrap) {
+    const exists = wrap.selected?.cod === item.cod;
+
+    if (exists) {
       setWrap((prev) => ({
         ...prev,
-        selected: {
-          formato_Wrap: "",
-        },
+        selected: null,
       }));
     } else {
       setWrap((prev) => ({
         ...prev,
-        selected: {
-          formato_Wrap: formato_wrap,
-          costo,
-        },
+        selected: item,
       }));
     }
   }
+
+  const handleWrapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    // carica il file con valigette
+    const wraps = await parseWrapExcel(file);
+    console.log("wraps here", wraps);
+
+    setWrap({
+      options: wraps,
+      selected: null,
+    });
+
+    await window.electronAPI.saveWrap(wraps);
+  };
 
   return (
     <div>
@@ -557,6 +586,7 @@ export default function RecipeBuilder() {
                     %
                   </td>
                 )}
+                {/* {totalePercentuali} */}
                 {/* fine percentuale  */}
                 <td
                   style={{
@@ -573,6 +603,17 @@ export default function RecipeBuilder() {
           })}
         </tbody>
       </table>
+      <div
+        style={{
+          display: "flex",
+          color: "red",
+          marginTop: "5px",
+          alignItems: "flex-end",
+          // width: "100%",
+        }}
+      >
+        {totalePercentuali}
+      </div>
       <div
         style={{
           display: "flex",
@@ -637,6 +678,11 @@ export default function RecipeBuilder() {
                 🎁 Wrap
               </button>
             </div>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleWrapUpload}
+            />{" "}
           </div>
 
           {/*Inizio Carta (senza inputs) */}
@@ -705,9 +751,9 @@ export default function RecipeBuilder() {
           {showWrap && (
             <div>
               {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
-              {Object.entries(wrap.options).map(([nome, costo]) => (
+              {wrap.options.map((item) => (
                 <div
-                  key={nome}
+                  key={item.cod}
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -716,14 +762,14 @@ export default function RecipeBuilder() {
                     borderBottom: "1px solid #eee",
                   }}
                 >
-                  <span>{nome}</span>
+                  <span>{item.formato_Wrap}</span>
 
-                  {wrap.selected?.costo == costo ? (
+                  {wrap.selected?.costo == item.costo ? (
                     <strong>
-                      <span> € {costo}</span>
+                      <span> € {item.costo}</span>
                     </strong>
                   ) : (
-                    <span> € {costo}</span>
+                    <span> € {item.costo}</span>
                   )}
 
                   <button
@@ -733,13 +779,15 @@ export default function RecipeBuilder() {
                       border: "1px solid #ccc",
                       cursor: "pointer",
                       backgroundColor:
-                        wrap.selected?.formato_Wrap === nome ? "#22c55e" : "",
+                        wrap.selected?.formato_Wrap === item.formato_Wrap
+                          ? "#22c55e"
+                          : "",
                       color:
-                        wrap.selected?.formato_Wrap === nome
+                        wrap.selected?.formato_Wrap === item.formato_Wrap
                           ? "white"
                           : "black",
                     }}
-                    onClick={() => Handle_Wrap(nome, costo)}
+                    onClick={() => Handle_Wrap(item)}
                   >
                     Seleziona
                   </button>
@@ -756,9 +804,54 @@ export default function RecipeBuilder() {
                     border: "1px solid #22c55e",
                   }}
                 >
+                  {/* cambia solo prezzo di input, non di json qraps cost */}
+                  <div style={{ marginTop: "10px" }}>
+                    <label>Prezzo (€)</label>
+
+                    <input
+                      type="number"
+                      value={wrap.selected.costo}
+                      onChange={(e) =>
+                        setWrap((prev) => ({
+                          ...prev,
+                          selected: {
+                            ...prev.selected!,
+                            costo: Number(e.target.value),
+                          },
+                        }))
+                      }
+                    />
+                  </div>
                   ✅ Wrap selezionato:
                   <strong>{wrap.selected?.formato_Wrap}</strong> (€{" "}
                   {wrap.selected?.costo})
+                </div>
+              )}
+              {/* Update input del costo dei wrap  */}
+              {wrap.selected && (
+                <div
+                  style={{
+                    marginTop: "10px",
+                  }}
+                >
+                  <label>Modifica prezzo:</label>
+
+                  <input
+                    type="number"
+                    value={wrap.selected.costo}
+                    onChange={(e) => {
+                      const nuovoCosto = Number(e.target.value);
+
+                      setWrap((prev) => ({
+                        ...prev,
+
+                        selected: {
+                          ...prev.selected!,
+                          costo: nuovoCosto,
+                        },
+                      }));
+                    }}
+                  />
                 </div>
               )}
             </div>
@@ -777,7 +870,6 @@ export default function RecipeBuilder() {
           }}
         >
           <h3 style={{ marginTop: 0 }}>Riepilogo</h3>
-
           <div
             style={{
               display: "flex",
