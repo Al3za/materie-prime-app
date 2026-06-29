@@ -111,6 +111,31 @@ ipcMain.handle("load-materials", async () => {
   return JSON.parse(content);
 });
 
+// save valigette
+
+ipcMain.handle("save-wrap", async (_, wraps) => {
+  // Assicura che il data folder/ esista prima di scrivere
+  ensureDataFolder();
+  const filePath = path.join(getDataFolder(), "wrap.json");
+
+  fs.writeFileSync(filePath, JSON.stringify(wraps, null, 2), "utf-8");
+
+  return true;
+});
+
+// load valigette salvate
+
+ipcMain.handle("load-wrap", async () => {
+  ensureDataFolder();
+  const filePath = path.join(getDataFolder(), "wrap.json");
+
+  if (!fs.existsSync(filePath)) return [];
+
+  const data = fs.readFileSync(filePath, "utf-8");
+
+  return JSON.parse(data);
+});
+
 // funzione Salva ricetta (In file locale) (ricorda di aggiungere una funzione che ti avverte se la ricetta ha lo stesso nome di un altra. poi magari fai scegliere se sovrascrivere. poi possiamo anche inserire il delete recept)
 ipcMain.handle("save-recipe", async (_, recipe) => {
   // in _, recipe c'e l'object con i dati della ricetta
