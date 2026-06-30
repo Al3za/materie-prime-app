@@ -259,7 +259,7 @@ ipcMain.handle("load-recipes", async () => {
   }
 });
 
-// Save settings data (nord, sud, estero)
+// Save settings data (la carta con prezzo eventualmente cambiato)
 ipcMain.handle("save-settings", async (_, settings) => {
   // Assicura che il data folder/ esista prima di scrivere
   ensureDataFolder();
@@ -278,13 +278,17 @@ ipcMain.handle("load-settings", async () => {
   ensureDataFolder();
   const filePath = path.join(getDataFolder(), "settings.json");
 
+  // i dati che il cliente vede se non esiste il file json. Poi quando li aggiorna vede i file definiti nel return
   if (!fs.existsSync(filePath)) {
+    // default value se non esiste ancora il filejson
     return {
-      trasporti: {
-        nord: 0,
-        sud: 0,
-        estero: 0,
+      carta: {
+        "1000": 10,
+        "500": 5,
+        "250": 2.5,
+        "200": 2,
       },
+      // selected: null,
     };
   }
 

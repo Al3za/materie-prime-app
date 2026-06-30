@@ -1,9 +1,14 @@
-export interface TrasportiData {
-  nord: number;
-  sud: number;
-  estero: number;
-}
+export interface CartaSettings {
+  // trasporti: {
+  //   nord: number;
+  //   sud: number;
+  //   estero: number;
+  // };
 
-export interface SettingsData {
-  trasporti: TrasportiData;
+  carta: {
+    "1000": number;
+    "500": number;
+    "250": number;
+    "200": number;
+  };
 }
