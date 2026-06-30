@@ -171,7 +171,7 @@ export default function RecipeBuilder() {
 
   // FUNZIONE SALVATAGGIO RICETTA
   const handleSaveRecipe = async () => {
-    console.log("carta.selected", carta.selected?.costo);
+    console.log("carta.selected", carta.selected);
     if (recipeMode != "kg" && totalePercentuali != 100) {
       // toast.error("La somma delle percentuali supera il 100%");
       toast.error("La somma delle percentuali deve essere 100%");
@@ -250,24 +250,6 @@ export default function RecipeBuilder() {
     navigate("/show_recipes");
   };
 
-  // Caricamento automatico con i piu' recenti dei settings data (Nord, Sud, Estero) quando si carica la pagina
-  // Da eliminare, non serve piu'
-  // useEffect(() => {
-  //   const load = async () => {
-  //     const settings = await window.electronAPI.loadSettings();
-
-  //     setCarta((prev) => ({
-  //       ...prev,
-
-  //       prezzi: settings.,
-
-  //       selected: prev.selected,
-  //     }));
-  //   };
-
-  //   load();
-  // }, []);
-
   // Ogni volta che l'utente modifica i dati di coso di trasport questi si salvano nel folder e vengono mostrati quando riapriamo la pagina:
   const updateTrasporto = (zona: string, costo: number) => {
     setTrasporti((prev) => ({
@@ -285,6 +267,7 @@ export default function RecipeBuilder() {
     formato: keyof CartaState["formato"],
     prezzo: number,
   ) => {
+    console.log("prezzo", prezzo);
     const updated = {
       ...carta,
 
@@ -293,7 +276,11 @@ export default function RecipeBuilder() {
 
         [formato]: prezzo,
       },
-      //  selected: carta.selected?
+      selected: {
+        // formato_carta: formato,
+        // aggiurniamo solo il prezzo
+        costo: prezzo,
+      },
     };
 
     setCarta(updated);
@@ -318,6 +305,7 @@ export default function RecipeBuilder() {
   };
 
   function Handle_Carta(formato: string, costo: number): void {
+    console.log("costo =", costo);
     // const exist = selectedCarta?.formato == formato;
     const exist = carta.selected?.formato_carta == formato;
     console.log(exist);
@@ -340,28 +328,6 @@ export default function RecipeBuilder() {
       }));
     }
   }
-
-  // interroga chat
-  // function Handle_Wrap(formato_wrap: string, costo: number): void {
-  //   const exist = wrap.selected?.formato_Wrap == formato_wrap;
-
-  //   if (exist) {
-  //     setWrap((prev) => ({
-  //       ...prev,
-  //       selected: {
-  //         formato_Wrap: "",
-  //       },
-  //     }));
-  //   } else {
-  //     setWrap((prev) => ({
-  //       ...prev,
-  //       selected: {
-  //         formato_Wrap: formato_wrap,
-  //         costo,
-  //       },
-  //     }));
-  //   }
-  // }
 
   function Handle_Wrap(item: Wrap) {
     const exists = wrap.selected?.cod === item.cod;
@@ -823,7 +789,9 @@ export default function RecipeBuilder() {
                             ? "white"
                             : "black",
                       }}
-                      onClick={() => Handle_Carta(formato, costo)}
+                      onClick={() =>
+                        Handle_Carta(formato, carta.formato[formatoKey])
+                      }
                     >
                       Seleziona
                     </button>
