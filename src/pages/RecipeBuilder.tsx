@@ -2,8 +2,8 @@
 // import { useLocation } from "react-router-dom";
 
 import { useNavigate } from "react-router-dom";
-import { useRecipe } from "../context/RecipeContext"; // il context dove sono salvati i dati dei
-import { useState } from "react";
+import { useRecipe, type CartaState } from "../context/RecipeContext"; // il context dove sono salvati i dati dei
+import { useEffect, useState } from "react";
 // import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 // import type { Material } from "../types/material";
@@ -137,30 +137,41 @@ export default function RecipeBuilder() {
       energia: 0,
     });
 
-    setTrasporti({
-      prezzi: {
-        nord: 100,
-        sud: 50,
-        estero: 200,
-      },
-      selected: null,
-    });
+    // setTrasporti({
+    //   prezzi: {
+    //     nord: 100,
+    //     sud: 50,
+    //     estero: 200,
+    //   },
+    //   selected: null,
+    // });
 
-    setCarta({
-      formato: {
-        "1000": 100,
-        "500": 50,
-        "250": 25,
-        "200": 20,
-      },
+    setTrasporti((prev) => ({
+      ...prev,
       selected: null,
-    });
+    }));
+
+    setCarta((prev) => ({
+      ...prev,
+      selected: null,
+    }));
+
+    // setCarta({
+    //   formato: {
+    //     "1000": 100,
+    //     "500": 50,
+    //     "250": 25,
+    //     "200": 20,
+    //   },
+    //   selected: null,
+    // });
 
     setRecipeMode("percentuale");
   };
 
   // FUNZIONE SALVATAGGIO RICETTA
   const handleSaveRecipe = async () => {
+    console.log("carta.selected", carta.selected?.costo);
     if (recipeMode != "kg" && totalePercentuali != 100) {
       // toast.error("La somma delle percentuali supera il 100%");
       toast.error("La somma delle percentuali deve essere 100%");
@@ -175,6 +186,8 @@ export default function RecipeBuilder() {
 
       return;
     }
+
+    console.log("carta.selected", carta.selected);
 
     const recipe: Recipe = {
       // id: // l'id si crea nel server electron
@@ -243,7 +256,13 @@ export default function RecipeBuilder() {
   //   const load = async () => {
   //     const settings = await window.electronAPI.loadSettings();
 
-  //     setTrasporti(settings.trasporti);
+  //     setCarta((prev) => ({
+  //       ...prev,
+
+  //       prezzi: settings.,
+
+  //       selected: prev.selected,
+  //     }));
   //   };
 
   //   load();
@@ -261,6 +280,31 @@ export default function RecipeBuilder() {
     }));
   };
 
+  // update carta
+  const updateCarta = async (
+    formato: keyof CartaState["formato"],
+    prezzo: number,
+  ) => {
+    const updated = {
+      ...carta,
+
+      formato: {
+        ...carta.formato,
+
+        [formato]: prezzo,
+      },
+      //  selected: carta.selected?
+    };
+
+    setCarta(updated);
+
+    // salviamo anche settings.json
+
+    await window.electronAPI.saveSettings({
+      carta: updated.formato,
+    });
+  };
+
   const [showTrasporti, setShowTrasporti] = useState<boolean>(false);
   const [showCarta, setShowCarta] = useState<boolean>(true);
   const [showWrap, setShowWrap] = useState<boolean>(false);
@@ -273,7 +317,7 @@ export default function RecipeBuilder() {
     }));
   };
 
-  function Handle_Carta(formato: string, costos: number): void {
+  function Handle_Carta(formato: string, costo: number): void {
     // const exist = selectedCarta?.formato == formato;
     const exist = carta.selected?.formato_carta == formato;
     console.log(exist);
@@ -291,7 +335,7 @@ export default function RecipeBuilder() {
         ...prev,
         selected: {
           formato_carta: formato,
-          costo: costos,
+          costo: costo,
         },
       }));
     }
@@ -735,46 +779,57 @@ export default function RecipeBuilder() {
           {/*Inizio Carta (senza inputs) */}
           {showCarta && (
             <div>
-              {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
-              {Object.entries(carta.formato).map(([formato, costo]) => (
-                <div
-                  key={formato}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "10px",
-                    borderBottom: "1px solid #eee",
-                  }}
-                >
-                  <span>{formato}</span>
-                  {carta.selected?.costo == costo ? (
-                    <strong> € {costo} </strong>
-                  ) : (
-                    <span>€ {costo}</span>
-                  )}
-
-                  <button
+              {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object * */}
+              {Object.entries(carta.formato).map(([formato, costo]) => {
+                const formatoKey = formato as keyof CartaState["formato"];
+                return (
+                  <div
+                    key={formato}
                     style={{
-                      padding: "6px 12px",
-                      borderRadius: "6px",
-                      border: "1px solid #ccc",
-                      cursor: "pointer",
-                      backgroundColor:
-                        carta.selected?.formato_carta === formato
-                          ? "#22c55e"
-                          : "white",
-                      color:
-                        carta.selected?.formato_carta === formato
-                          ? "white"
-                          : "black",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "10px",
+                      borderBottom: "1px solid #eee",
                     }}
-                    onClick={() => Handle_Carta(formato, costo)}
                   >
-                    Seleziona
-                  </button>
-                </div>
-              ))}
+                    <span>{formato}</span>
+
+                    <input
+                      type="number"
+                      value={carta.formato[formatoKey]}
+                      onChange={(e) =>
+                        updateCarta(formatoKey, Number(e.target.value))
+                      }
+                    />
+                    {carta.selected?.costo == costo ? (
+                      <strong> € {costo} </strong>
+                    ) : (
+                      <span>€ {costo}</span>
+                    )}
+
+                    <button
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc",
+                        cursor: "pointer",
+                        backgroundColor:
+                          carta.selected?.formato_carta === formato
+                            ? "#22c55e"
+                            : "white",
+                        color:
+                          carta.selected?.formato_carta === formato
+                            ? "white"
+                            : "black",
+                      }}
+                      onClick={() => Handle_Carta(formato, costo)}
+                    >
+                      Seleziona
+                    </button>
+                  </div>
+                );
+              })}
               {/* Mostrare la selezione corrente */}
               {/* trova bug qui  */}
               {carta.selected?.formato_carta && (

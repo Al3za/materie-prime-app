@@ -1,6 +1,6 @@
 import type { Material } from "./material";
 import type { Recipe } from "./recipe";
-import type { SettingsData } from "./settings";
+import type { CartaSettings } from "./settings";
 import type { Wrap } from "./wrap";
 export {};
 interface SaveRecipeResult {
@@ -19,9 +19,9 @@ declare global {
 
       loadRecipes(): Promise<Recipe[]>;
 
-      loadSettings(): Promise<SettingsData>;
+      loadSettings(): Promise<CartaSettings>;
 
-      saveSettings(trasporti: SettingsData): Promise<boolean>;
+      saveSettings(carta: CartaSettings): Promise<boolean>;
 
       updateRecipe: (recipeId: string, recipe: Recipe) => Promise<boolean>;
 

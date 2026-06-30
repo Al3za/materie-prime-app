@@ -30,7 +30,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   saveSettings: (settings: any) =>
     ipcRenderer.invoke("save-settings", settings),
 
-  // salva i settings (nord, sud, estero)
+  // salva i settings della carta
   loadSettings: () => ipcRenderer.invoke("load-settings"),
 
   // update recipe

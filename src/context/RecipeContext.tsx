@@ -12,7 +12,7 @@ type TransportState = {
   selected: CostOption | null;
 };
 
-type CartaState = {
+export type CartaState = {
   formato: {
     "1000": number;
     "500": number;
@@ -122,24 +122,13 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
   // Formato e prezzo di default (cambiabile) carta
   const [carta, setCarta] = useState<CartaState>({
     formato: {
-      "1000": 100,
-      "500": 50,
-      "250": 25,
-      "200": 20,
+      "1000": 0,
+      "500": 0,
+      "250": 0,
+      "200": 0,
     },
     selected: null as CostOption | null,
   });
-
-  // Formato e prezzo di default (cambiabile) wrap. Se  il cliente vorra' modificarli in futuro, allora converrà spostarli in settings.json
-  // come avevamo fatto per trasporti e packaging.
-  // const [wrap, setWrap] = useState<WrapState>({
-  //   options: {
-  //     "valigetta 2x6 opaco bianco": 15,
-  //     "valigetta 3x4 opaco nero": 20,
-  //     "valigetta 3x8 opaco verde": 30,
-  //   },
-  //   selected: null as CostOption | null,
-  // });
 
   const [wrap, setWrap] = useState<WrapState>({
     options: [],
@@ -155,6 +144,7 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
       // altrimenti si deve caricare un nuovo file (questo serve a fare in modo che lo user carichi il file excell solo 1 volta)
       const savedMaterials = await window.electronAPI.loadMaterials();
       const saved = await window.electronAPI.loadWrap();
+      const settingsCarta = await window.electronAPI.loadSettings();
 
       // Materials
       if (savedMaterials.length > 0) {
@@ -167,6 +157,16 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
           options: saved,
           selected: null,
         });
+      }
+
+      if (settingsCarta.carta) {
+        setCarta((prev) => ({
+          ...prev,
+
+          formato: settingsCarta.carta, // i dati degli ultimi cambiamenti
+
+          selected: prev.selected, // null quando riaapri l app
+        }));
       }
     };
 
