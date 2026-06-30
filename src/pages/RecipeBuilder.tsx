@@ -125,7 +125,12 @@ export default function RecipeBuilder() {
     setRecipeName("");
     setPercentages({});
     setKgMaterials({});
-    setWrap({ options: [], selected: null });
+    // setWrap({ options: [], selected: null });
+
+    setWrap((prev) => ({
+      ...prev,
+      selected: null,
+    }));
 
     setExtraCosts({
       lavorazione: 0,
@@ -156,9 +161,7 @@ export default function RecipeBuilder() {
 
   // FUNZIONE SALVATAGGIO RICETTA
   const handleSaveRecipe = async () => {
-    console.log("percentages", percentages);
-    console.log(totalePercentuali);
-    if (totalePercentuali != 100) {
+    if (recipeMode != "kg" && totalePercentuali != 100) {
       // toast.error("La somma delle percentuali supera il 100%");
       toast.error("La somma delle percentuali deve essere 100%");
       // setMessage("La somma delle percentuali supera il 100%");
@@ -172,13 +175,6 @@ export default function RecipeBuilder() {
 
       return;
     }
-
-    // toast.success(
-    //   editingRecipeId ? `${recipeName} Aggiornata!` : `${recipeName} creata!`,
-    // );
-    // toast.success();
-
-    console.log("save recipe clicked");
 
     const recipe: Recipe = {
       // id: // l'id si crea nel server electron
@@ -356,6 +352,17 @@ export default function RecipeBuilder() {
     await window.electronAPI.saveWrap(wraps);
   };
 
+  // Modifica prezzo del wrap selezionato
+  function HandleWrapPrice(newPrice: number) {
+    setWrap((prev) => ({
+      ...prev,
+      selected: {
+        ...prev.selected!,
+        costo: newPrice,
+      },
+    }));
+  }
+
   return (
     <div>
       <h2>Ricetta</h2>
@@ -368,7 +375,7 @@ export default function RecipeBuilder() {
           style={{
             width: "350px",
             padding: "5px 7px",
-            borderRadius: "8px",
+            // borderRadius: "8px",
             border: "1px solid #d1d5db",
             fontSize: "14px",
             marginBottom: "10px",
@@ -586,7 +593,6 @@ export default function RecipeBuilder() {
                     %
                   </td>
                 )}
-                {/* {totalePercentuali} */}
                 {/* fine percentuale  */}
                 <td
                   style={{
@@ -602,6 +608,36 @@ export default function RecipeBuilder() {
             );
           })}
         </tbody>
+        <tfoot>
+          <tr
+            style={{
+              backgroundColor: "#f8fafc",
+              borderTop: "2px solid #d1d5db",
+            }}
+          >
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+
+            {recipeMode === "kg" && <td></td>}
+
+            <td
+              style={{
+                padding: "12px",
+                textAlign: "center",
+                fontWeight: 700,
+                color: totalePercentuali === 100 ? "#16a34a" : "#dc2626",
+              }}
+            >
+              {totalePercentuali === 100 ? "✅" : "⚠️"}
+              <br />
+              {totalePercentuali}%
+            </td>
+
+            <td></td>
+          </tr>
+        </tfoot>
       </table>
       <div
         style={{
@@ -611,9 +647,7 @@ export default function RecipeBuilder() {
           alignItems: "flex-end",
           // width: "100%",
         }}
-      >
-        {totalePercentuali}
-      </div>
+      ></div>
       <div
         style={{
           display: "flex",
@@ -633,7 +667,26 @@ export default function RecipeBuilder() {
             boxSizing: "border-box",
           }}
         >
-          <h3 style={{ marginTop: 0 }}>Packaging</h3>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "20px",
+            }}
+          >
+            <h3 style={{ margin: 0 }}>📦 Packaging</h3>
+
+            {showWrap && (
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleWrapUpload}
+              />
+            )}
+          </div>
+          {/* <h3 style={{ marginTop: 0, display: "inline-flex" }}>Packaging</h3>{" "} */}
+
           <div style={{ marginBottom: "15px" }}>
             {/* BOTTONI packaging */}
             <div
@@ -678,13 +731,7 @@ export default function RecipeBuilder() {
                 🎁 Wrap
               </button>
             </div>
-            <input
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={handleWrapUpload}
-            />{" "}
           </div>
-
           {/*Inizio Carta (senza inputs) */}
           {showCarta && (
             <div>
@@ -750,110 +797,124 @@ export default function RecipeBuilder() {
           {/*Inizio wrap */}
           {showWrap && (
             <div>
-              {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
-              {wrap.options.map((item) => (
-                <div
-                  key={item.cod}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "10px",
-                    borderBottom: "1px solid #eee",
-                  }}
-                >
-                  <span>{item.formato_Wrap}</span>
-
-                  {wrap.selected?.costo == item.costo ? (
-                    <strong>
-                      <span> € {item.costo}</span>
-                    </strong>
-                  ) : (
-                    <span> € {item.costo}</span>
-                  )}
-
-                  <button
+              {/* inizio Mostra selezionato e input change costo */}
+              <div>
+                {wrap.selected?.formato_Wrap && (
+                  <div
                     style={{
-                      padding: "6px 12px",
+                      marginTop: "15px",
+                      padding: "10px",
                       borderRadius: "6px",
-                      border: "1px solid #ccc",
-                      cursor: "pointer",
-                      backgroundColor:
-                        wrap.selected?.formato_Wrap === item.formato_Wrap
-                          ? "#22c55e"
-                          : "",
-                      color:
-                        wrap.selected?.formato_Wrap === item.formato_Wrap
-                          ? "white"
-                          : "black",
+                      backgroundColor: "#dcfce7",
+                      border: "1px solid #22c55e",
                     }}
-                    onClick={() => Handle_Wrap(item)}
                   >
-                    Seleziona
-                  </button>
-                </div>
-              ))}
-              {/* Mostrare la selezione corrente */}
-              {wrap.selected?.formato_Wrap && (
-                <div
-                  style={{
-                    marginTop: "15px",
-                    padding: "10px",
-                    borderRadius: "6px",
-                    backgroundColor: "#dcfce7",
-                    border: "1px solid #22c55e",
-                  }}
-                >
-                  {/* cambia solo prezzo di input, non di json qraps cost */}
-                  <div style={{ marginTop: "10px" }}>
-                    <label>Prezzo (€)</label>
+                    ✅ Wrap selezionato:
+                    <strong>{wrap.selected?.formato_Wrap}</strong> (€{" "}
+                    {wrap.selected?.costo})
+                  </div>
+                )}
+                {/* Update input del costo dei wrap  */}
+                {wrap.selected && (
+                  <div
+                    style={{
+                      marginTop: "10px",
+                    }}
+                  >
+                    <label>Modifica prezzo:</label>
 
                     <input
                       type="number"
                       value={wrap.selected.costo}
-                      onChange={(e) =>
-                        setWrap((prev) => ({
-                          ...prev,
-                          selected: {
-                            ...prev.selected!,
-                            costo: Number(e.target.value),
-                          },
-                        }))
-                      }
+                      onChange={(e) => {
+                        HandleWrapPrice(Number(e.target.value));
+                      }}
                     />
                   </div>
-                  ✅ Wrap selezionato:
-                  <strong>{wrap.selected?.formato_Wrap}</strong> (€{" "}
-                  {wrap.selected?.costo})
-                </div>
-              )}
-              {/* Update input del costo dei wrap  */}
-              {wrap.selected && (
-                <div
-                  style={{
-                    marginTop: "10px",
-                  }}
-                >
-                  <label>Modifica prezzo:</label>
-
-                  <input
-                    type="number"
-                    value={wrap.selected.costo}
-                    onChange={(e) => {
-                      const nuovoCosto = Number(e.target.value);
-
-                      setWrap((prev) => ({
-                        ...prev,
-
-                        selected: {
-                          ...prev.selected!,
-                          costo: nuovoCosto,
-                        },
-                      }));
+                )}
+              </div>
+              <div
+                style={{
+                  marginTop: "15px",
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  paddingRight: "6px",
+                  scrollbarWidth: "thin",
+                }}
+              >
+                {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object */}
+                {wrap.options.map((item) => (
+                  <div
+                    key={item.cod}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 70px 110px",
+                      alignItems: "center",
+                      gap: "15px",
+                      padding: "10px 8px",
+                      borderBottom: "1px solid #eee",
                     }}
-                  />
-                </div>
-              )}
+                    // style={{
+                    //   display: "flex",
+                    //   justifyContent: "space-between",
+                    //   alignItems: "center",
+                    //   padding: "10px",
+                    //   borderBottom: "1px solid #eee",
+                    // }}
+                  >
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                      title={`${item.formato_Wrap}`}
+                    >
+                      {item.formato_Wrap}
+                    </span>
+
+                    {wrap.selected?.costo == item.costo ? (
+                      <strong
+                        style={{
+                          textAlign: "right",
+                        }}
+                      >
+                        <span> € {item.costo}</span>
+                      </strong>
+                    ) : (
+                      <span
+                        style={{
+                          textAlign: "right",
+                        }}
+                      >
+                        {" "}
+                        € {item.costo}
+                      </span>
+                    )}
+
+                    <button
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc",
+                        cursor: "pointer",
+                        backgroundColor:
+                          wrap.selected?.formato_Wrap === item.formato_Wrap
+                            ? "#22c55e"
+                            : "",
+                        color:
+                          wrap.selected?.formato_Wrap === item.formato_Wrap
+                            ? "white"
+                            : "black",
+                      }}
+                      onClick={() => Handle_Wrap(item)}
+                    >
+                      Seleziona
+                    </button>
+                  </div>
+                ))}
+                {/* Mostrare la selezione corrente */}
+              </div>
             </div>
           )}
         </div>
