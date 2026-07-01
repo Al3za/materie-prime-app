@@ -158,6 +158,9 @@ export default function RecipeDetail() {
                 alignItems: "center",
               }}
             >
+              <span>Costo Miscelazione</span>
+              <strong>€ {recipe.costoMiscelazione}</strong>
+
               <span>Costo lavorazione</span>
               <strong>€ {recipe.costoLavorazione}</strong>
 

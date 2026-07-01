@@ -1,6 +1,5 @@
 export interface Wrap {
-  cod: string;
+  cod?: string;
   formato_Wrap: string;
   costo: number;
-  // prezzoOriginale: number;
 }
