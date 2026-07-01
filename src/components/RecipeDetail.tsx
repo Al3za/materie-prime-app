@@ -375,7 +375,7 @@ export default function RecipeDetail() {
                     padding: "12px",
                     borderBottom: "1px solid #eee",
                     textAlign: "center",
-                    maxWidth: "300px",
+                    maxWidth: "200px",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
