@@ -137,15 +137,6 @@ export default function RecipeBuilder() {
       energia: 0,
     });
 
-    // setTrasporti({
-    //   prezzi: {
-    //     nord: 100,
-    //     sud: 50,
-    //     estero: 200,
-    //   },
-    //   selected: null,
-    // });
-
     setTrasporti((prev) => ({
       ...prev,
       selected: null,
@@ -156,22 +147,11 @@ export default function RecipeBuilder() {
       selected: null,
     }));
 
-    // setCarta({
-    //   formato: {
-    //     "1000": 100,
-    //     "500": 50,
-    //     "250": 25,
-    //     "200": 20,
-    //   },
-    //   selected: null,
-    // });
-
     setRecipeMode("percentuale");
   };
 
   // FUNZIONE SALVATAGGIO RICETTA
   const handleSaveRecipe = async () => {
-    console.log("carta.selected", carta.selected);
     if (recipeMode != "kg" && totalePercentuali != 100) {
       // toast.error("La somma delle percentuali supera il 100%");
       toast.error("La somma delle percentuali deve essere 100%");
@@ -219,6 +199,7 @@ export default function RecipeBuilder() {
 
       totale: Number(totaleFinale.toFixed(2)),
 
+      costoMiscelazione: Number(totaleMateriePrime.toFixed(2)),
       costoLavorazione: extraCosts.lavorazione,
       costoEnergia: extraCosts.energia,
 
@@ -259,6 +240,7 @@ export default function RecipeBuilder() {
         ...prev.prezzi,
         [zona]: costo,
       },
+      selected: null,
     }));
   };
 
@@ -392,7 +374,7 @@ export default function RecipeBuilder() {
           }}
         />
       </div>
-      {recipeMode}
+      {/* {recipeMode} */}
       <div
         style={{
           display: "flex",
@@ -560,7 +542,7 @@ export default function RecipeBuilder() {
                     }}
                   >
                     <input
-                      type="number"
+                      type="text"
                       value={kgMaterials[item.cod] || 0}
                       onChange={(e) =>
                         updateKg(item.cod, Number(e.target.value))
@@ -586,7 +568,7 @@ export default function RecipeBuilder() {
                     }}
                   >
                     <input
-                      type="number"
+                      type="text"
                       value={percentages[item.cod] ?? ""}
                       onChange={(e) => {
                         setPercentages({
@@ -618,36 +600,40 @@ export default function RecipeBuilder() {
             );
           })}
         </tbody>
-        <tfoot>
-          <tr
-            style={{
-              backgroundColor: "#f8fafc",
-              borderTop: "2px solid #d1d5db",
-            }}
-          >
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-
-            {recipeMode === "kg" && <td></td>}
-
-            <td
+        {recipeMode != "kg" ? (
+          <tfoot>
+            <tr
               style={{
-                padding: "12px",
-                textAlign: "center",
-                fontWeight: 700,
-                color: totalePercentuali === 100 ? "#16a34a" : "#dc2626",
+                backgroundColor: "#f8fafc",
+                borderTop: "2px solid #d1d5db",
               }}
             >
-              {totalePercentuali === 100 ? "✅" : "⚠️"}
-              <br />
-              {totalePercentuali}%
-            </td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
 
-            <td></td>
-          </tr>
-        </tfoot>
+              {/* {recipeMode === "kg" && <td></td>} */}
+
+              <td
+                style={{
+                  padding: "12px",
+                  textAlign: "center",
+                  fontWeight: 700,
+                  color: totalePercentuali === 100 ? "#16a34a" : "#dc2626",
+                }}
+              >
+                {totalePercentuali === 100 ? "✅" : "⚠️"}
+                <br />
+                {totalePercentuali}%
+              </td>
+
+              <td></td>
+            </tr>
+          </tfoot>
+        ) : (
+          ""
+        )}
       </table>
       <div
         style={{
@@ -695,7 +681,6 @@ export default function RecipeBuilder() {
               />
             )}
           </div>
-          {/* <h3 style={{ marginTop: 0, display: "inline-flex" }}>Packaging</h3>{" "} */}
 
           <div style={{ marginBottom: "15px" }}>
             {/* BOTTONI packaging */}
@@ -745,6 +730,24 @@ export default function RecipeBuilder() {
           {/*Inizio Carta (senza inputs) */}
           {showCarta && (
             <div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr 1.2fr",
+                  gap: "12px",
+                  padding: "8px",
+                  fontWeight: 600,
+                  color: "#64748b",
+                  borderBottom: "2px solid #ddd",
+                  marginBottom: "5px",
+                }}
+              >
+                <span>Formato</span>
+                <span>Prezzo</span>
+                <span>Costo</span>
+                <span></span>
+              </div>
+
               {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object * */}
               {Object.entries(carta.formato).map(([formato, costo]) => {
                 const formatoKey = formato as keyof CartaState["formato"];
@@ -752,26 +755,37 @@ export default function RecipeBuilder() {
                   <div
                     key={formato}
                     style={{
-                      display: "flex",
-                      justifyContent: "space-between",
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr 1fr 1.2fr",
                       alignItems: "center",
-                      padding: "10px",
+                      gap: "12px",
+                      padding: "10px 8px",
                       borderBottom: "1px solid #eee",
                     }}
                   >
                     <span>{formato}</span>
 
                     <input
-                      type="number"
+                      type="text"
                       value={carta.formato[formatoKey]}
                       onChange={(e) =>
                         updateCarta(formatoKey, Number(e.target.value))
                       }
+                      style={{
+                        width: "70px",
+                        padding: "6px",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc",
+                        textAlign: "center",
+                      }}
                     />
                     {carta.selected?.costo == costo ? (
-                      <strong> € {costo} </strong>
+                      <strong style={{ textAlign: "center" }}>
+                        {" "}
+                        € {costo}{" "}
+                      </strong>
                     ) : (
-                      <span>€ {costo}</span>
+                      <span style={{ textAlign: "center" }}>€ {costo}</span>
                     )}
 
                     <button
@@ -847,7 +861,7 @@ export default function RecipeBuilder() {
                     <label>Modifica prezzo:</label>
 
                     <input
-                      type="number"
+                      type="text"
                       value={wrap.selected.costo}
                       onChange={(e) => {
                         HandleWrapPrice(Number(e.target.value));
@@ -877,13 +891,6 @@ export default function RecipeBuilder() {
                       padding: "10px 8px",
                       borderBottom: "1px solid #eee",
                     }}
-                    // style={{
-                    //   display: "flex",
-                    //   justifyContent: "space-between",
-                    //   alignItems: "center",
-                    //   padding: "10px",
-                    //   borderBottom: "1px solid #eee",
-                    // }}
                   >
                     <span
                       style={{
@@ -994,7 +1001,7 @@ export default function RecipeBuilder() {
           >
             <span style={{ width: "160px" }}> Costo Lavorazione</span>
             <input
-              type="number"
+              type="text"
               value={extraCosts.lavorazione}
               onChange={(e) =>
                 setExtraCosts({
@@ -1029,7 +1036,7 @@ export default function RecipeBuilder() {
           >
             <span style={{ width: "160px" }}>Costo energia/gas</span>
             <input
-              type="number"
+              type="text"
               value={extraCosts.energia}
               onChange={(e) =>
                 setExtraCosts({
@@ -1120,7 +1127,7 @@ export default function RecipeBuilder() {
                   Nord
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={trasporti.prezzi.nord}
                   onChange={(e) =>
                     updateTrasporto("nord", Number(e.target.value))
@@ -1168,7 +1175,7 @@ export default function RecipeBuilder() {
                 </label>
 
                 <input
-                  type="number"
+                  type="text"
                   value={trasporti.prezzi?.sud}
                   onChange={(e) =>
                     updateTrasporto("sud", Number(e.target.value))
@@ -1217,7 +1224,7 @@ export default function RecipeBuilder() {
                 </label>
 
                 <input
-                  type="number"
+                  type="text"
                   value={trasporti.prezzi.estero}
                   onChange={(e) =>
                     updateTrasporto("estero", Number(e.target.value))
