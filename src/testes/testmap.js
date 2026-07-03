@@ -15,3 +15,8 @@ materialMap.set("Mandorle ", 3); // backticks sensitive
 console.log(materialMap);
 console.log(materialMap.size);
 console.log(materialMap.get("Mandorle "));
+
+const zeus = "0";
+
+const zeusToNumber = Number(zeus);
+console.log("zeusToNumber", zeusToNumber);

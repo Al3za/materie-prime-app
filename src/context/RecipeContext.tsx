@@ -109,9 +109,9 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
   });
   const [trasporti, setTrasporti] = useState<TransportState>({
     prezzi: {
-      nord: 100,
-      sud: 50,
-      estero: 200,
+      nord: 0,
+      sud: 0,
+      estero: 0,
     },
     selected: null as CostOption | null,
   });
