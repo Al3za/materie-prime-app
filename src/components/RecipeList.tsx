@@ -166,6 +166,7 @@ export default function RecipeList() {
       return;
     }
 
+    // carrica i dati context con i dati della ricetta selezionata cliccando su 'update' o 'duplica'
     loadRecipeIntoBuilder(recipe);
 
     if (mode === "update") {
@@ -371,15 +372,16 @@ export default function RecipeList() {
                     padding: "6px 12px",
                     borderRadius: "6px",
                     cursor: "pointer",
-                    backgroundColor: editingRecipeId ? "#bbf7d0" : "",
+                    backgroundColor:
+                      editingRecipeId == recipe.id ? "#bbf7d0" : "",
                   }}
                   onMouseEnter={(e) =>
-                    editingRecipeId
+                    editingRecipeId == recipe.id
                       ? ""
                       : (e.currentTarget.style.backgroundColor = "#bbf7d0")
                   }
                   onMouseLeave={(e) =>
-                    editingRecipeId
+                    editingRecipeId == recipe.id
                       ? ""
                       : (e.currentTarget.style.backgroundColor = "white")
                   }

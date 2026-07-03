@@ -3,7 +3,7 @@
 
 import { useNavigate } from "react-router-dom";
 import { useRecipe, type CartaState } from "../context/RecipeContext"; // il context dove sono salvati i dati dei
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 // import type { Material } from "../types/material";
@@ -543,7 +543,9 @@ export default function RecipeBuilder() {
                   >
                     <input
                       type="text"
+                      // inputMode="numeric"
                       value={kgMaterials[item.cod] || 0}
+                      // placeholder="0"
                       onChange={(e) =>
                         updateKg(item.cod, Number(e.target.value))
                       }
