@@ -65,10 +65,6 @@ export default function RecipeBuilder() {
     }
   };
 
-  // const sele = async (zona: string, costo: number) => {}
-
-  // Calcolare il totale Kg della ricetta
-  // const totaleKg = Object.values(kgMaterials).reduce((acc, kg) => acc + kg, 0);
   const totaleKg = selectedMaterials.reduce(
     (acc, item) => acc + (kgMaterials[item.cod] || 0),
     0,
@@ -82,8 +78,6 @@ export default function RecipeBuilder() {
           ? ((kgMaterials[item.cod] || 0) / totaleKg) * 100
           : 0
         : percentages[item.cod] || 0;
-
-    // const RoundPercentage = acc + (item.prezzoAcquisto * percentualeDaUsare) / 100; // aggiungi tofix(3)
 
     return acc + (item.prezzoAcquisto * percentualeDaUsare) / 100;
   }, 0);
@@ -169,6 +163,27 @@ export default function RecipeBuilder() {
 
     console.log("carta.selected", carta.selected);
 
+    console.log(
+      "recipeName",
+      recipeName,
+      "totaleKg",
+      totaleKg,
+      "totaleFinale",
+      totaleFinale,
+      "trasporti",
+      trasporti.selected,
+      "carta",
+      carta.selected,
+      "wrap",
+      wrap.selected,
+      "totaleMateriePrime",
+      totaleMateriePrime,
+      "extraCosts",
+      extraCosts.lavorazione,
+      "extraCosts",
+      extraCosts.energia,
+    );
+
     const recipe: Recipe = {
       // id: // l'id si crea nel server electron
       nome: recipeName,
@@ -180,16 +195,16 @@ export default function RecipeBuilder() {
         const percentualeDaUsare =
           recipeMode === "kg"
             ? totaleKg > 0
-              ? ((kgMaterials[item.cod] || 0) / totaleKg) * 100
+              ? ((kgMaterials[item.cod] || 0) / totaleKg) * 100 // || 0 assicurana che la string " diventi 0"
               : 0
-            : percentages[item.cod] || 0;
+            : percentages[item.cod] || 0; // || 0 assicurana che la string " diventi 0"
 
         return {
           cod: item.cod,
           descrizione: item.descrizione,
           prezzoAcquisto: item.prezzoAcquisto,
           kg: recipeMode === "kg" ? kgMaterials[item.cod] || 0 : null,
-          // percentuale: percentages[item.cod] || 0,
+          // percentuale: percentages[item.cod].toFixed(2) || 0,
           percentuale: Number(percentualeDaUsare.toFixed(2)),
           costo: Number(
             ((item.prezzoAcquisto * percentualeDaUsare) / 100).toFixed(2),
@@ -355,6 +370,29 @@ export default function RecipeBuilder() {
     }));
   }
 
+  function checkValues(): void {
+    console.log(
+      "recipeName",
+      recipeName,
+      "totaleKg",
+      totaleKg,
+      "totaleFinale",
+      totaleFinale,
+      "trasporti",
+      trasporti.selected,
+      "carta",
+      carta.selected,
+      "wrap",
+      wrap.selected,
+      "totaleMateriePrime",
+      totaleMateriePrime,
+      "extraCosts",
+      extraCosts.lavorazione,
+      "extraCosts",
+      extraCosts.energia,
+    );
+  }
+
   return (
     <div>
       <h2>Ricetta</h2>
@@ -367,7 +405,6 @@ export default function RecipeBuilder() {
           style={{
             width: "350px",
             padding: "5px 7px",
-            // borderRadius: "8px",
             border: "1px solid #d1d5db",
             fontSize: "14px",
             marginBottom: "10px",
@@ -542,10 +579,11 @@ export default function RecipeBuilder() {
                     }}
                   >
                     <input
-                      type="text"
-                      // inputMode="numeric"
-                      value={kgMaterials[item.cod] || 0}
-                      // placeholder="0"
+                      type="number"
+                      value={
+                        kgMaterials[item.cod] === 0 ? "" : kgMaterials[item.cod]
+                      }
+                      placeholder="0"
                       onChange={(e) =>
                         updateKg(item.cod, Number(e.target.value))
                       }
@@ -570,8 +608,11 @@ export default function RecipeBuilder() {
                     }}
                   >
                     <input
-                      type="text"
-                      value={percentages[item.cod] ?? ""}
+                      type="number"
+                      value={
+                        percentages[item.cod] == 0 ? "" : percentages[item.cod]
+                      }
+                      placeholder="0"
                       onChange={(e) => {
                         setPercentages({
                           ...percentages,
@@ -680,6 +721,7 @@ export default function RecipeBuilder() {
                 type="file"
                 accept=".xlsx,.xls"
                 onChange={handleWrapUpload}
+                // placeholder="Upload wraps"
               />
             )}
           </div>
@@ -768,8 +810,13 @@ export default function RecipeBuilder() {
                     <span>{formato}</span>
 
                     <input
-                      type="text"
-                      value={carta.formato[formatoKey]}
+                      type="number"
+                      value={
+                        carta.formato[formatoKey] == 0
+                          ? ""
+                          : carta.formato[formatoKey]
+                      }
+                      placeholder="0"
                       onChange={(e) =>
                         updateCarta(formatoKey, Number(e.target.value))
                       }
@@ -863,8 +910,11 @@ export default function RecipeBuilder() {
                     <label>Modifica prezzo:</label>
 
                     <input
-                      type="text"
-                      value={wrap.selected.costo}
+                      type="number"
+                      value={
+                        wrap.selected.costo == 0 ? "" : wrap.selected.costo
+                      }
+                      placeholder="0"
                       onChange={(e) => {
                         HandleWrapPrice(Number(e.target.value));
                       }}
@@ -1003,14 +1053,15 @@ export default function RecipeBuilder() {
           >
             <span style={{ width: "160px" }}> Costo Lavorazione</span>
             <input
-              type="text"
-              value={extraCosts.lavorazione}
+              type="number"
+              value={extraCosts.lavorazione == 0 ? "" : extraCosts.lavorazione}
               onChange={(e) =>
                 setExtraCosts({
                   ...extraCosts,
-                  lavorazione: Number(e.target.value),
+                  lavorazione: Number(e.target.value), // se valore = ""(cioe' 0), la funzione Number (e.target.value) la trasforma in Numero 0
                 })
               }
+              placeholder="0"
               style={{
                 width: "90px",
                 padding: "6px",
@@ -1038,14 +1089,15 @@ export default function RecipeBuilder() {
           >
             <span style={{ width: "160px" }}>Costo energia/gas</span>
             <input
-              type="text"
-              value={extraCosts.energia}
+              type="number"
+              value={extraCosts.energia == 0 ? "" : extraCosts.energia}
               onChange={(e) =>
                 setExtraCosts({
                   ...extraCosts,
                   energia: Number(e.target.value),
                 })
               }
+              placeholder="0"
               style={{
                 width: "90px",
                 padding: "6px",
@@ -1129,8 +1181,10 @@ export default function RecipeBuilder() {
                   Nord
                 </label>
                 <input
-                  type="text"
-                  value={trasporti.prezzi.nord}
+                  type="number"
+                  value={
+                    trasporti.prezzi.nord == 0 ? "" : trasporti.prezzi.nord
+                  }
                   onChange={(e) =>
                     updateTrasporto("nord", Number(e.target.value))
                   } // fai in modo che quando si spunta nors, i dati si aggiornano automaticamente
@@ -1142,6 +1196,7 @@ export default function RecipeBuilder() {
                     backgroundColor:
                       trasporti.selected?.zona === "Nord" ? "#dbeafe" : "white",
                   }}
+                  placeholder="0"
                 />
 
                 <button
@@ -1177,11 +1232,12 @@ export default function RecipeBuilder() {
                 </label>
 
                 <input
-                  type="text"
-                  value={trasporti.prezzi?.sud}
+                  type="number"
+                  value={trasporti.prezzi.sud == 0 ? "" : trasporti.prezzi.sud}
                   onChange={(e) =>
                     updateTrasporto("sud", Number(e.target.value))
                   }
+                  placeholder="0"
                   style={{
                     width: "80px",
                     padding: "6px",
@@ -1226,11 +1282,14 @@ export default function RecipeBuilder() {
                 </label>
 
                 <input
-                  type="text"
-                  value={trasporti.prezzi.estero}
+                  type="number"
+                  value={
+                    trasporti.prezzi.estero == 0 ? "" : trasporti.prezzi.estero
+                  }
                   onChange={(e) =>
                     updateTrasporto("estero", Number(e.target.value))
                   }
+                  placeholder="0"
                   style={{
                     width: "80px",
                     padding: "6px",
@@ -1359,7 +1418,7 @@ export default function RecipeBuilder() {
           Mostra ricette
         </button>
       </div>
-      {/* <button onClick={CheckDuplicateRecipe}>Test Duplica</button> */}
+      <button onClick={checkValues}>checkValues</button>
       {/* <button onClick={() => navigate("/duplicate")}> duplicate</button> */}
     </div>
   );
