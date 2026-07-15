@@ -2,7 +2,7 @@
 // Ha accesso al filesystem, finestre, menu, notifiche, ecc.
 // Usa API Electron come BrowserWindow, app, dialog.
 
-import { app, BrowserWindow, ipcMain } from "electron"; // ipcMain = comunicazione Ipc tra componenti electron (main - render - preload)
+import { app, BrowserWindow, ipcMain, dialog } from "electron"; // ipcMain = comunicazione Ipc tra componenti electron (main - render - preload)
 import fs from "fs";
 import path from "path";
 
@@ -236,6 +236,28 @@ ipcMain.handle("delete-recipe", async (_, recipeId) => {
   fs.writeFileSync(filePath, JSON.stringify(filtered, null, 2));
 
   return true;
+});
+
+// ask before deleting
+ipcMain.handle("confirm-delete-recipe", async () => {
+  console.log("confirm-delete-recipe hit");
+  const result = await dialog.showMessageBox({
+    type: "warning",
+
+    title: "Delete Recipe",
+
+    message: "Delete recipe?",
+
+    detail: "This action cannot be undone.",
+
+    buttons: ["Cancel", "Delete"],
+
+    defaultId: 1,
+
+    cancelId: 0,
+  });
+
+  return result.response === 1;
 });
 
 // load all recipes

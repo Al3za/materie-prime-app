@@ -8,6 +8,8 @@ export default function RecipeList() {
   const {
     setEditingRecipeId,
     editingRecipeId,
+    duplicateRecipeId,
+    setDuplicateRecipeId,
     setSelectedMaterials,
     selectedMaterials,
     setPercentages,
@@ -34,12 +36,14 @@ export default function RecipeList() {
       descrizione: item.descrizione,
       prezzoAcquisto: item.prezzoAcquisto,
     }));
+    // console.log("materials here", materials);
 
     setSelectedMaterials(materials);
 
     // Percentuali
     // console.log("recipe.RecipeMode", recipe.RecipeMode);
     if (recipe.recipeMode == "percentuale") {
+      console.log("hit restoredPercentages");
       const restoredPercentages: Record<string, number> = {};
 
       recipe.items.forEach((item: any) => {
@@ -48,7 +52,8 @@ export default function RecipeList() {
 
       setPercentages(restoredPercentages);
     }
-    // KG
+    // KG .
+    console.log("hit restoredKg");
     const restoredKg: Record<string, number> = {};
 
     recipe.items.forEach((item: any) => {
@@ -158,32 +163,60 @@ export default function RecipeList() {
   };
 
   const openRecipeBuilder = (recipe: any, mode: "update" | "duplicate") => {
-    const updateExist = editingRecipeId == recipe.id;
-    console.log("updateExist", updateExist);
-    if (updateExist) {
-      setEditingRecipeId(null); // la mettiamo qui' a solo xke piu' comunicativo, poteva anche stare in resetRecipeList
-      resetRecipeList(); // pulisci il context e' esci da modalita' update
-      return;
+    // queste due le azzeriamo nel caso un utente inizia a scrivere input % o peso per una nuova ricetta, poi va' su recipeList e decide di modificare o duplicare una ricetta gia esistente.
+    // senza questo azzeramento, ci sarebbero le % dei materiali che aveva scritto prima ancora in corso. (solo per questo caso, altrimenti i dati di context si sovrascrivono quando clicchiamo su update o duplicate)
+    setPercentages({});
+    setKgMaterials({});
+
+    // dopo aver popolato i context della ricetta cliccata, vediamo se l'utente ha cliccato 'update'
+    // (mode === "update"), e popoliamo anche setEditingRecipeId e setRecipeName context:
+    if (mode === "update") {
+      setDuplicateRecipeId(null);
+      const updateExist = editingRecipeId == recipe.id;
+      if (updateExist) {
+        setEditingRecipeId(null); // la mettiamo qui' solo xke piu' comunicativo, poteva anche stare in resetRecipeList
+        resetRecipeList(); // pulisci il context e' esci da modalita' update
+        return;
+      }
+      setEditingRecipeId(recipe.id);
+      setRecipeName(recipe.nome);
+    } else {
+      // in questo else arriviamo se abbiamo cliccato duplicate:
+      setEditingRecipeId(null);
+      const duplicateExist = duplicateRecipeId == recipe.id;
+      if (duplicateExist) {
+        setDuplicateRecipeId(null); // la mettiamo qui' solo xke piu' comunicativo, poteva anche stare in resetRecipeList
+        resetRecipeList(); // pulisci il context e' esci da modalita' update
+        return;
+      }
+      setEditingRecipeId(null); // per sicurezza in caso setEditingRecipeId non fosse stato resettato
+      setRecipeName("");
+      setDuplicateRecipeId(recipe.id);
     }
 
     // carrica i dati context con i dati della ricetta selezionata cliccando su 'update' o 'duplica'
     loadRecipeIntoBuilder(recipe);
-
-    if (mode === "update") {
-      setEditingRecipeId(recipe.id);
-      setRecipeName(recipe.nome);
-    } else {
-      setEditingRecipeId(null);
-      // setRecipeName(`${recipe.nome} copia`);
-    }
 
     navigate("/recipe");
   };
 
   // delete
   const handleDelete = async (recipeId: string) => {
-    await window.electronAPI.deleteRecipe(recipeId);
+    // const confirmed = window.confirm(
+    //   "Eliminare Ricetta?\n\nQuesta azione e' irreversibile.",
+    // );
+    // if (!confirmed) return;
 
+    const confirmed = await window.electronAPI.confirmDeleteRecipe();
+
+    console.log(confirmed);
+    if (!confirmed) return;
+
+    setEditingRecipeId(null);
+    setDuplicateRecipeId(null);
+    resetRecipeList();
+    ////
+    await window.electronAPI.deleteRecipe(recipeId);
     loadRecipes();
   };
 
@@ -402,12 +435,18 @@ export default function RecipeList() {
                     padding: "6px 12px",
                     borderRadius: "6px",
                     cursor: "pointer",
+                    backgroundColor:
+                      duplicateRecipeId == recipe.id ? "#bbf7d0" : "",
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#bbf7d0")
+                    duplicateRecipeId == recipe.id
+                      ? ""
+                      : (e.currentTarget.style.backgroundColor = "#bbf7d0")
                   }
                   onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "white")
+                    duplicateRecipeId == recipe.id
+                      ? ""
+                      : (e.currentTarget.style.backgroundColor = "white")
                   }
                 >
                   Duplicate
@@ -437,7 +476,12 @@ export default function RecipeList() {
           selectedMaterials.length ? navigate("/recipe") : navigate("/")
         }
       >
-        ➕ Crea Ricetta
+        {editingRecipeId
+          ? "Aggiorna Ricetta"
+          : duplicateRecipeId
+            ? "Duplica Ricetta"
+            : "➕ Crea Ricetta"}{" "}
+        {/* ➕ Crea Ricetta */}
       </button>
     </div>
   );

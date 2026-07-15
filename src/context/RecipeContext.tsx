@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-
 import type { Material } from "../types/material";
 import type { Wrap } from "../types/wrap";
 
@@ -21,11 +20,6 @@ export type CartaState = {
   };
   selected: CostOption | null;
 };
-
-// type WrapState = {
-//   options: Record<string, number>;
-//   selected: CostOption | null;
-// };
 
 type WrapState = {
   options: Wrap[];
@@ -84,8 +78,10 @@ interface RecipeContextType {
   setWrap: React.Dispatch<React.SetStateAction<WrapState>>;
 
   editingRecipeId: string | null;
-
   setEditingRecipeId: React.Dispatch<React.SetStateAction<string | null>>;
+
+  duplicateRecipeId: string | null;
+  setDuplicateRecipeId: React.Dispatch<React.SetStateAction<string | null>>;
 
   recipeName: string;
   setRecipeName: React.Dispatch<React.SetStateAction<string>>;
@@ -97,6 +93,9 @@ const RecipeContext = createContext<RecipeContextType | undefined>(undefined);
 // children e' l'intera app, wrapped in RecipeProvider nel file main.ts (per poter passare i dati in modo ersistente tra i componenti)
 export function RecipeProvider({ children }: { children: React.ReactNode }) {
   const [editingRecipeId, setEditingRecipeId] = useState<string | null>(null);
+  const [duplicateRecipeId, setDuplicateRecipeId] = useState<string | null>(
+    null,
+  );
   const [recipeName, setRecipeName] = useState("");
 
   const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
@@ -220,6 +219,8 @@ export function RecipeProvider({ children }: { children: React.ReactNode }) {
         setWrap,
         editingRecipeId,
         setEditingRecipeId,
+        duplicateRecipeId,
+        setDuplicateRecipeId,
         recipeName,
         setRecipeName,
         addMaterial,

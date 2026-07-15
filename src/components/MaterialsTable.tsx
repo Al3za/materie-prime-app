@@ -138,6 +138,7 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
           }}
         />
       </div>
+      {/* {selectedMaterials.length ? ( */}
       <div>
         <button
           onClick={() => {
@@ -160,6 +161,9 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
           📋 Mostra Ricetta
         </button>
       </div>
+      {/* ) : (
+        ""
+      )} */}
       <table
         style={{
           borderCollapse: "collapse",
