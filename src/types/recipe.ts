@@ -13,7 +13,9 @@ export interface Recipe {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   recipeMode: any;
   createdAt: string;
-  items: RecipeItem[];
+  // items: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items: RecipeItem[] | any;
   totale: number;
   costoMiscelazione?: number;
   costoLavorazione?: number;

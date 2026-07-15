@@ -36,6 +36,8 @@ export default function RecipeBuilder() {
     setWrap,
     editingRecipeId,
     setEditingRecipeId,
+    duplicateRecipeId,
+    setDuplicateRecipeId,
     recipeName,
     setRecipeName,
     removeMaterial,
@@ -69,6 +71,7 @@ export default function RecipeBuilder() {
     (acc, item) => acc + (kgMaterials[item.cod] || 0),
     0,
   );
+  console.log("totaleKg", totaleKg);
 
   // Calcola costo totale materie prime (miscelazione)
   const totaleMateriePrime = selectedMaterials.reduce((acc, item) => {
@@ -87,6 +90,8 @@ export default function RecipeBuilder() {
     (acc, value) => acc + value,
     0,
   );
+
+  console.log("totalePercentuali", totalePercentuali, percentages);
 
   // console.log(totalePercentuali);
 
@@ -113,10 +118,11 @@ export default function RecipeBuilder() {
     removeMaterial(material_cod);
   };
 
-  // pulisci il context on salva ricetta click
+  // pulisci il context quando salvi la ricetta click
   const resetRecipe = () => {
     setSelectedMaterials([]);
     setRecipeName("");
+    setDuplicateRecipeId(null);
     setPercentages({});
     setKgMaterials({});
     // setWrap({ options: [], selected: null });
@@ -161,28 +167,23 @@ export default function RecipeBuilder() {
       return;
     }
 
-    console.log("carta.selected", carta.selected);
+    const hasInvalidCost = selectedMaterials.some((item) => {
+      const percentuale =
+        recipeMode === "kg"
+          ? totaleKg > 0
+            ? ((kgMaterials[item.cod] ?? 0) / totaleKg) * 100
+            : 0
+          : (percentages[item.cod] ?? 0);
 
-    console.log(
-      "recipeName",
-      recipeName,
-      "totaleKg",
-      totaleKg,
-      "totaleFinale",
-      totaleFinale,
-      "trasporti",
-      trasporti.selected,
-      "carta",
-      carta.selected,
-      "wrap",
-      wrap.selected,
-      "totaleMateriePrime",
-      totaleMateriePrime,
-      "extraCosts",
-      extraCosts.lavorazione,
-      "extraCosts",
-      extraCosts.energia,
-    );
+      const costo = (item.prezzoAcquisto * percentuale) / 100;
+
+      return costo <= 0;
+    });
+
+    if (hasInvalidCost) {
+      toast.error("Ogni materiale deve avere una percentuale/peso valido.");
+      return;
+    }
 
     const recipe: Recipe = {
       // id: // l'id si crea nel server electron
@@ -191,7 +192,11 @@ export default function RecipeBuilder() {
       createdAt: new Date().toISOString(),
 
       recipeMode,
+
+      // items: items,
       items: selectedMaterials.map((item) => {
+        // console.log(item, "item materiale su salvataggio ricetta");
+        // console.log(item.cod, "item materiale su salvataggio ricetta");
         const percentualeDaUsare =
           recipeMode === "kg"
             ? totaleKg > 0
@@ -264,26 +269,26 @@ export default function RecipeBuilder() {
     formato: keyof CartaState["formato"],
     prezzo: number,
   ) => {
-    console.log("prezzo", prezzo);
     const updated = {
       ...carta,
 
       formato: {
         ...carta.formato,
-
         [formato]: prezzo,
       },
-      selected: {
-        // formato_carta: formato,
-        // aggiurniamo solo il prezzo
-        costo: prezzo,
-      },
+
+      selected:
+        carta.selected?.formato_carta === formato
+          ? {
+              ...carta.selected,
+              costo: prezzo,
+            }
+          : carta.selected,
     };
 
     setCarta(updated);
 
     // salviamo anche settings.json
-
     await window.electronAPI.saveSettings({
       carta: updated.formato,
     });
@@ -370,32 +375,38 @@ export default function RecipeBuilder() {
     }));
   }
 
-  function checkValues(): void {
-    console.log(
-      "recipeName",
-      recipeName,
-      "totaleKg",
-      totaleKg,
-      "totaleFinale",
-      totaleFinale,
-      "trasporti",
-      trasporti.selected,
-      "carta",
-      carta.selected,
-      "wrap",
-      wrap.selected,
-      "totaleMateriePrime",
-      totaleMateriePrime,
-      "extraCosts",
-      extraCosts.lavorazione,
-      "extraCosts",
-      extraCosts.energia,
-    );
-  }
+  // function checkValues(): void {
+  //   console.log(
+  //     "recipeName",
+  //     recipeName,
+  //     "totaleKg",
+  //     totaleKg,
+  //     "totaleFinale",
+  //     totaleFinale,
+  //     "trasporti",
+  //     trasporti.selected,
+  //     "carta",
+  //     carta.selected,
+  //     "wrap",
+  //     wrap.selected,
+  //     "totaleMateriePrime",
+  //     totaleMateriePrime,
+  //     "extraCosts",
+  //     extraCosts.lavorazione,
+  //     "extraCosts",
+  //     extraCosts.energia,
+  //   );
+  // }
 
   return (
     <div>
-      <h2>Ricetta</h2>
+      <h2>
+        {editingRecipeId
+          ? "Aggiorna Ricetta"
+          : duplicateRecipeId
+            ? "Duplica Ricetta"
+            : "Ricetta"}{" "}
+      </h2>
       <div>
         <input
           type="text"
@@ -422,7 +433,10 @@ export default function RecipeBuilder() {
         }}
       >
         <button
-          onClick={() => [setKgMaterials({}), setRecipeMode("percentuale")]}
+          onClick={() => [
+            editingRecipeId || duplicateRecipeId ? "" : setKgMaterials({}),
+            setRecipeMode("percentuale"),
+          ]}
           style={{
             padding: "10px 18px",
             borderRadius: "8px",
@@ -437,7 +451,10 @@ export default function RecipeBuilder() {
         </button>
 
         <button
-          onClick={() => [setPercentages({}), setRecipeMode("kg")]}
+          onClick={() => [
+            editingRecipeId || duplicateRecipeId ? "" : setPercentages({}),
+            setRecipeMode("kg"),
+          ]}
           style={{
             padding: "10px 18px",
             borderRadius: "8px",
@@ -643,7 +660,9 @@ export default function RecipeBuilder() {
             );
           })}
         </tbody>
-        {recipeMode != "kg" ? (
+        {recipeMode == "kg" || !selectedMaterials.length ? (
+          ""
+        ) : (
           <tfoot>
             <tr
               style={{
@@ -674,8 +693,6 @@ export default function RecipeBuilder() {
               <td></td>
             </tr>
           </tfoot>
-        ) : (
-          ""
         )}
       </table>
       <div
@@ -794,7 +811,17 @@ export default function RecipeBuilder() {
 
               {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object * */}
               {Object.entries(carta.formato).map(([formato, costo]) => {
+                // serve per far in modo che i dati della carta sono sempre gli stessi della ricetta salvata, e non cambiano
+                // nel raro caso l'utente clicca su updates, cambia gli input costo carta,
+                // poi si pente e non vuole fare update piu' e quindi disattiva il button,
+                // e poi si ripente dinuovo e vuole fare dinuovo gli update.
+                // Insomma, anche se l'utente cambia gli input carta, i dati restano fedeli hai
+                // dati della ricetta salvata in recipe list  gli input dei prezzi sempre
                 const formatoKey = formato as keyof CartaState["formato"];
+                const displayedValue =
+                  carta.selected?.formato_carta === formato
+                    ? (carta.selected.costo ?? 0)
+                    : carta.formato[formatoKey];
                 return (
                   <div
                     key={formato}
@@ -807,15 +834,20 @@ export default function RecipeBuilder() {
                       borderBottom: "1px solid #eee",
                     }}
                   >
-                    <span>{formato}</span>
+                    {/* <span>{formato}</span> */}
+                    {carta.selected?.formato_carta === formato ? (
+                      <strong>
+                        <span>{formato}</span>
+                      </strong>
+                    ) : (
+                      <span>
+                        <span>{formato}</span>
+                      </span>
+                    )}
 
                     <input
                       type="number"
-                      value={
-                        carta.formato[formatoKey] == 0
-                          ? ""
-                          : carta.formato[formatoKey]
-                      }
+                      value={displayedValue === 0 ? "" : displayedValue}
                       placeholder="0"
                       onChange={(e) =>
                         updateCarta(formatoKey, Number(e.target.value))
@@ -828,13 +860,23 @@ export default function RecipeBuilder() {
                         textAlign: "center",
                       }}
                     />
-                    {carta.selected?.costo == costo ? (
+                    {/* sistema qui'  */}
+                    {/* {carta.selected?.costo == costo ? (
                       <strong style={{ textAlign: "center" }}>
                         {" "}
-                        € {costo}{" "}
+                        € {costo}
                       </strong>
                     ) : (
                       <span style={{ textAlign: "center" }}>€ {costo}</span>
+                    )} */}
+                    {carta.selected?.formato_carta === formato ? (
+                      <strong style={{ textAlign: "center" }}>
+                        € {displayedValue}
+                      </strong>
+                    ) : (
+                      <span style={{ textAlign: "center" }}>
+                        € {displayedValue}
+                      </span>
                     )}
 
                     <button
@@ -1418,8 +1460,6 @@ export default function RecipeBuilder() {
           Mostra ricette
         </button>
       </div>
-      <button onClick={checkValues}>checkValues</button>
-      {/* <button onClick={() => navigate("/duplicate")}> duplicate</button> */}
     </div>
   );
 }

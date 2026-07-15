@@ -42,6 +42,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   deleteRecipe: (recipeId: string) =>
     ipcRenderer.invoke("delete-recipe", recipeId),
 
+  // ask delete
+  confirmDeleteRecipe: () => ipcRenderer.invoke("confirm-delete-recipe"),
+
   // Salva valigette
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

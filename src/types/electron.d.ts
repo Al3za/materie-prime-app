@@ -27,6 +27,8 @@ declare global {
 
       deleteRecipe: (recipeId: string) => Promise<boolean>;
 
+      confirmDeleteRecipe: () => Promise<boolean>;
+
       saveWrap: (wraps: Wrap[]) => Promise<boolean>;
 
       loadWrap: () => Promise<Wrap[]>;
