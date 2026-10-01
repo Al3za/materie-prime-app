@@ -27,6 +27,7 @@ out/
 /release
 data/
 dist-electron/
+/src/testes
 
 # Editor directories and files
 .vscode/*

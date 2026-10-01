@@ -810,7 +810,7 @@ export default function RecipeBuilder() {
               </div>
 
               {/* Object.entries(wrap) Returns an array of key/values of the enumerable own properties of an object * */}
-              {Object.entries(carta.formato).map(([formato, costo]) => {
+              {Object.entries(carta.formato).map(([formato]) => {
                 // serve per far in modo che i dati della carta sono sempre gli stessi della ricetta salvata, e non cambiano
                 // nel raro caso l'utente clicca su updates, cambia gli input costo carta,
                 // poi si pente e non vuole fare update piu' e quindi disattiva il button,

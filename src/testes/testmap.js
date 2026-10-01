@@ -1,11 +1,3 @@
-// const zes = 2;
-
-// const mil = 2;
-
-// const max = zes + mil;
-
-// console.log(max);
-
 const materialMap = new Map();
 
 materialMap.set("Mandorle", 1);
@@ -16,7 +8,7 @@ console.log(materialMap);
 console.log(materialMap.size);
 console.log(materialMap.get("Mandorle "));
 
-const zeus = "0";
+const z1 = "0";
 
-const zeusToNumber = Number(zeus);
-console.log("zeusToNumber", zeusToNumber);
+const z1ToNumber = Number(zeus);
+console.log("z1ToNumber", z1ToNumber);

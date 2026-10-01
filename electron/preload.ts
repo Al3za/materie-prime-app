@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-// import type { Material } from "../src/types/material"; // aggiungi la cartella shared in futuro, in modo che ts con manda errore
+// import type { Material } from "../src/types/material"; // aggiungi la cartella shared in futuro, in modo che ts non manda errore
 console.log("PRELOAD CARICATO 1");
 
 // esponi API nel preload (IPC comunication)

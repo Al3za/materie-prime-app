@@ -1,3 +1,5 @@
+// npm run electron:dev per avviare l'app
+
 // Esegue main.ts.
 // Ha accesso al filesystem, finestre, menu, notifiche, ecc.
 // Usa API Electron come BrowserWindow, app, dialog.
@@ -6,10 +8,11 @@ import { app, BrowserWindow, ipcMain, dialog } from "electron"; // ipcMain = com
 import fs from "fs";
 import path from "path";
 
+console.log("MAIN.TS IS RUNNING");
 // Creiamo la cartella data
 // const dataFolder = path.join(process.cwd(), "data"); // crea la cartella data al root level del progetto
 // const dataFolder = path.join(
-//   app.getPath("userData"), // app.getPath e importante perche trova trovano i giusti path in production, dopo aver creati il file "Mandorle Cost Tool".exe con electron-build, e li trova anche nel path del PC altri user, quelli che scaricano questo file.exe per usare l'app
+//   app.getPath("userData"), // app.getPath e importante perche trova i giusti path in production, dopo aver creati il file "Mandorle Cost Tool".exe con electron-build, e li trova anche nel path del PC degli altri user, quelli che scaricano questo file.exe per usare l'app
 //   "data",
 // );
 
@@ -85,13 +88,14 @@ app.on("window-all-closed", () => {
 
 // Funzione saveMaterials (in file locale)
 ipcMain.handle("save-materials", async (_, materials) => {
+  console.log("materials.json salvato1");
   // Assicura che il data folder/ esista prima di scrivere
   ensureDataFolder();
   const filePath = path.join(getDataFolder(), "materials.json");
 
   fs.writeFileSync(filePath, JSON.stringify(materials, null, 2), "utf-8");
 
-  console.log("materials.json salvato");
+  console.log("materials.json salvato2");
 
   return true;
 });
@@ -138,6 +142,7 @@ ipcMain.handle("load-wrap", async () => {
 
 // funzione Salva ricetta (In file locale) (ricorda di aggiungere una funzione che ti avverte se la ricetta ha lo stesso nome di un altra. poi magari fai scegliere se sovrascrivere. poi possiamo anche inserire il delete recept)
 ipcMain.handle("save-recipe", async (_, recipe) => {
+  console.log("receipt saved");
   // in _, recipe c'e l'object con i dati della ricetta
   // Assicura che il data folder/ esista prima di scrivere
   ensureDataFolder();
