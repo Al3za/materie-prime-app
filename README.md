@@ -118,11 +118,6 @@ The application calculates additional expenses and combines them with raw materi
 
 ## 📸 Screenshots
 
-Add screenshots of the application here to help visitors understand its interface.
-
-For example:
-
-```markdown
 ### Recipe Builder
 
 ![Recipe Builder - Screenshot 1](docs/screenshots/RecipeBuilder/recipe-builder1.png)
@@ -142,7 +137,6 @@ For example:
 ### Recipe List
 
 ![Recipe List - Screenshot 1](docs/screenshots/RecipeList/recipes-list.png)
-```
 
 ---
 
