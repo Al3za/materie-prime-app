@@ -120,17 +120,37 @@ The application calculates additional expenses and combines them with raw materi
 
 ### Recipe Builder
 
-**Select recipe products**
+### 1. Select recipe products
+
+Select the products to include in the recipe.
+
 ![Recipe Builder - Screenshot 1](docs/screenshots/RecipeBuilder/recipe-builder1.png)
 
-**Choose Percentages or Kilograms**
+<br>
+
+### 2. Choose percentages or kilograms
+
+Define the quantity either as a percentage or in kilograms.
+
 ![Recipe Builder - Screenshot 2](docs/screenshots/RecipeBuilder/recipe-builder2.png)
 
-**Choose Paper format and labor costs**
+<br>
+
+### 3. Choose paper format and labor costs
+
+Select the paper format and specify the labor costs.
+
 ![Recipe Builder - Screenshot 3](docs/screenshots/RecipeBuilder/recipe-builder3.png)
 
-**Choose Wrapping and transportation costs**
+<br>
+
+### 4. Choose wrapping and transportation costs
+
+Specify the wrapping and transportation costs.
+
 ![Recipe Builder - Screenshot 4](docs/screenshots/RecipeBuilder/recipe-builder4.png)
+
+<br>
 
 ### Recipe List
 
