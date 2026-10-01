@@ -120,23 +120,27 @@ The application calculates additional expenses and combines them with raw materi
 
 ### Recipe Builder
 
+**Select recipe products**
 ![Recipe Builder - Screenshot 1](docs/screenshots/RecipeBuilder/recipe-builder1.png)
 
+**Choose Percentages or Kilograms**
 ![Recipe Builder - Screenshot 2](docs/screenshots/RecipeBuilder/recipe-builder2.png)
 
+**Choose Paper format and labor costs**
 ![Recipe Builder - Screenshot 3](docs/screenshots/RecipeBuilder/recipe-builder3.png)
 
+**Choose Wrapping and transportation costs**
 ![Recipe Builder - Screenshot 4](docs/screenshots/RecipeBuilder/recipe-builder4.png)
+
+### Recipe List
+
+![Recipe List - Screenshot 1](docs/screenshots/RecipeList/recipes-list.png)
 
 ### Recipe Details
 
 ![Recipe Details - Screenshot 1](docs/screenshots/RecipeDetails/recipe-detail1.png)
 
 ![Recipe Details - Screenshot 2](docs/screenshots/RecipeDetails/recipe-detail2.png)
-
-### Recipe List
-
-![Recipe List - Screenshot 1](docs/screenshots/RecipeList/recipes-list.png)
 
 ---
 
@@ -175,7 +179,7 @@ npm install
 Start the application in development mode:
 
 ```bash
-npm run dev
+npm run electron:dev
 ```
 
 The application will launch using the development configuration.
