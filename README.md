@@ -175,7 +175,7 @@ npm install
 Start the application in development mode:
 
 ```bash
-npm run dev
+npm run electron:dev
 ```
 
 The application will launch using the development configuration.
