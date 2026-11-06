@@ -1,8 +1,8 @@
-# 🌰 Mandorle Cost Tool
+# 🌰 TotalFreight
 
 **A desktop application for managing recipes, calculating production costs, and organizing raw materials and packaging expenses.**
 
-Mandorle Cost Tool is a Windows desktop application designed to simplify recipe creation and cost management for food production.
+TotalFreight is a Windows desktop application designed to simplify recipe creation and cost management for food production.
 
 The application allows users to manage raw materials, calculate recipe costs using percentage-based or weight-based methods, track additional production expenses, and save recipes for future reference.
 
@@ -29,7 +29,7 @@ Built with Electron, React, and TypeScript, the application combines a responsiv
 
 ## 🎯 Overview
 
-Mandorle Cost Tool helps users calculate the cost of production recipes by combining raw material prices, ingredient quantities, packaging expenses, transportation costs, and other production costs.
+TotalFreight helps users calculate the cost of production recipes by combining raw material prices, ingredient quantities, packaging expenses, transportation costs, and other production costs.
 
 It is particularly useful for businesses that need to maintain an organized recipe database and quickly calculate production expenses.
 
@@ -286,7 +286,7 @@ From Recipe List, users can:
 
 ## 💾 Data Persistence
 
-Mandorle Cost Tool uses local JSON files to persist application data.
+TotalFreight uses local JSON files to persist application data.
 
 Depending on the configured data directory, the application stores information such as:
 
